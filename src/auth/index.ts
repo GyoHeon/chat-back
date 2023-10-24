@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import jwt from "jsonwebtoken";
 
-dotenv.config({ path: ".env" });
+dotenv.config({ path: "../../env" });
 
 const app = express();
 
