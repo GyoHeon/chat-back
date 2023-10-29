@@ -32,12 +32,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/express", "npm:4.17.20"],\
             ["@types/jsonwebtoken", "npm:9.0.4"],\
             ["@types/node", "npm:20.8.7"],\
+            ["@types/passport", "npm:1.0.14"],\
+            ["@types/passport-local", "npm:1.0.37"],\
             ["aws-sdk", "npm:2.1479.0"],\
             ["cookie-parser", "npm:1.4.6"],\
             ["dotenv", "npm:16.3.1"],\
             ["express", "npm:4.18.2"],\
             ["jsonwebtoken", "npm:9.0.2"],\
             ["nodemon", "npm:3.0.1"],\
+            ["passport", "npm:0.6.0"],\
+            ["passport-local", "npm:1.0.0"],\
             ["socket.io", "npm:4.7.2"],\
             ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"]\
           ],\
@@ -222,6 +226,39 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@types/node", "npm:20.8.7"],\
             ["undici-types", "npm:5.25.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/passport", [\
+        ["npm:1.0.14", {\
+          "packageLocation": "./.yarn/cache/@types-passport-npm-1.0.14-705b71086c-8e89c99d77.zip/node_modules/@types/passport/",\
+          "packageDependencies": [\
+            ["@types/passport", "npm:1.0.14"],\
+            ["@types/express", "npm:4.17.20"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/passport-local", [\
+        ["npm:1.0.37", {\
+          "packageLocation": "./.yarn/cache/@types-passport-local-npm-1.0.37-8446039950-53505ad588.zip/node_modules/@types/passport-local/",\
+          "packageDependencies": [\
+            ["@types/passport-local", "npm:1.0.37"],\
+            ["@types/express", "npm:4.17.20"],\
+            ["@types/passport", "npm:1.0.14"],\
+            ["@types/passport-strategy", "npm:0.2.37"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/passport-strategy", [\
+        ["npm:0.2.37", {\
+          "packageLocation": "./.yarn/cache/@types-passport-strategy-npm-0.2.37-0087999ce4-ca85308b0b.zip/node_modules/@types/passport-strategy/",\
+          "packageDependencies": [\
+            ["@types/passport-strategy", "npm:0.2.37"],\
+            ["@types/express", "npm:4.17.20"],\
+            ["@types/passport", "npm:1.0.14"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -577,12 +614,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/express", "npm:4.17.20"],\
             ["@types/jsonwebtoken", "npm:9.0.4"],\
             ["@types/node", "npm:20.8.7"],\
+            ["@types/passport", "npm:1.0.14"],\
+            ["@types/passport-local", "npm:1.0.37"],\
             ["aws-sdk", "npm:2.1479.0"],\
             ["cookie-parser", "npm:1.4.6"],\
             ["dotenv", "npm:16.3.1"],\
             ["express", "npm:4.18.2"],\
             ["jsonwebtoken", "npm:9.0.2"],\
             ["nodemon", "npm:3.0.1"],\
+            ["passport", "npm:0.6.0"],\
+            ["passport-local", "npm:1.0.0"],\
             ["socket.io", "npm:4.7.2"],\
             ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"]\
           ],\
@@ -2096,6 +2137,37 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["passport", [\
+        ["npm:0.6.0", {\
+          "packageLocation": "./.yarn/cache/passport-npm-0.6.0-0a57682d5b-ef932ad671.zip/node_modules/passport/",\
+          "packageDependencies": [\
+            ["passport", "npm:0.6.0"],\
+            ["passport-strategy", "npm:1.0.0"],\
+            ["pause", "npm:0.0.1"],\
+            ["utils-merge", "npm:1.0.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["passport-local", [\
+        ["npm:1.0.0", {\
+          "packageLocation": "./.yarn/cache/passport-local-npm-1.0.0-ed89961a0c-86dc08b12f.zip/node_modules/passport-local/",\
+          "packageDependencies": [\
+            ["passport-local", "npm:1.0.0"],\
+            ["passport-strategy", "npm:1.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["passport-strategy", [\
+        ["npm:1.0.0", {\
+          "packageLocation": "./.yarn/cache/passport-strategy-npm-1.0.0-5648a82a66-5086693f25.zip/node_modules/passport-strategy/",\
+          "packageDependencies": [\
+            ["passport-strategy", "npm:1.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["path-is-absolute", [\
         ["npm:1.0.1", {\
           "packageLocation": "./.yarn/cache/path-is-absolute-npm-1.0.1-31bc695ffd-060840f92c.zip/node_modules/path-is-absolute/",\
@@ -2130,6 +2202,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/path-to-regexp-npm-0.1.7-2605347373-69a14ea24d.zip/node_modules/path-to-regexp/",\
           "packageDependencies": [\
             ["path-to-regexp", "npm:0.1.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["pause", [\
+        ["npm:0.0.1", {\
+          "packageLocation": "./.yarn/cache/pause-npm-0.0.1-0c421a299d-e96ee581b6.zip/node_modules/pause/",\
+          "packageDependencies": [\
+            ["pause", "npm:0.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\
