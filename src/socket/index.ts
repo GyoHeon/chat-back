@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "node:http";
 import path from "path";
 import { Server } from "socket.io";
+import { DIR_NAME, PUBLIC_PATH } from "../constants/server.js";
 
 const app = express();
 const server = createServer(app);
@@ -45,9 +46,7 @@ io.on("connection", (socket) => {
 
 const PORT = 4000;
 
-const PUBLIC_PATH = "../public";
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, PUBLIC_PATH)));
+app.use(express.static(path.join(DIR_NAME, PUBLIC_PATH)));
 app.use(express.json());
 app.use(express.urlencoded());
 
