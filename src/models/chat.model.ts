@@ -14,6 +14,8 @@ export type ChatDocument = mongoose.Document & {
   isPrivate: boolean;
   users: ChatParticipant[];
   messages: MessageDocument[];
+
+  serverId: string;
 };
 
 export const chatSchema = new mongoose.Schema<ChatDocument>(
@@ -22,6 +24,8 @@ export const chatSchema = new mongoose.Schema<ChatDocument>(
     name: { type: String, required: true },
     users: Array,
     isPrivate: Boolean,
+
+    serverId: String,
   },
   { timestamps: true }
 );

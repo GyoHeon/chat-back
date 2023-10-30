@@ -22,8 +22,6 @@
     "jsonwebtoken": "^9.0.2",
     "lusca": "^1.7.0",
     "mongoose": "^7.6.3",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
@@ -37,8 +35,6 @@
     "@types/lusca": "^1.7.3",
     "@types/mongodb": "^4.0.7",
     "@types/node": "^20.8.7",
-    "@types/passport": "^1.0.14",
-    "@types/passport-local": "^1.0.37",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"

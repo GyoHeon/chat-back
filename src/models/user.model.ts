@@ -13,8 +13,9 @@ export type UserDocument = mongoose.Document & {
   name: string;
   picture: string;
   chats: ChatDocument[];
-
   tokens: AuthToken[];
+
+  serverId: string;
 
   comparePassword: comparePasswordFunction;
   gravatar: () => string;
@@ -32,8 +33,9 @@ export const userSchema = new mongoose.Schema<UserDocument>(
     name: { type: String, required: true },
     picture: String,
     chats: Array,
-
     tokens: Array,
+
+    serverId: String,
   },
   { timestamps: true }
 );
@@ -46,6 +48,9 @@ userSchema.pre("save", function save(next) {
   if (!user.isModified("password")) {
     return next();
   }
+  user.chats = [];
+  user.tokens = [];
+  user.picture = user.gravatar();
   bcrypt.genSalt(10, (err, salt) => {
     if (err) {
       return next(err);

@@ -4,12 +4,11 @@ import express from "express";
 import flash from "express-flash";
 import lusca from "lusca";
 import mongoose from "mongoose";
-import passport from "passport";
 import { MONGODB_URI } from "./utils/secrets";
 
-// Controllers (route handlers)
+import * as authController from "./controllers/auth.controller";
 
-// API keys and Passport configuration
+// Controllers (route handlers)
 
 // Create Express server
 const app = express();
@@ -35,14 +34,15 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(flash());
 app.use(lusca.xssProtection(true));
 app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
+
+app.post("/login", authController.postLogin);
+app.post("/signup", authController.postSignup);
 
 /**
  * Primary app routes.
