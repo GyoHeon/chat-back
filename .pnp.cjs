@@ -50,6 +50,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["express", "npm:4.18.2"],\
             ["express-flash", "npm:0.0.2"],\
             ["express-session", "npm:1.17.3"],\
+            ["express-validator", "npm:7.0.1"],\
             ["jsonwebtoken", "npm:9.0.2"],\
             ["lusca", "npm:1.7.0"],\
             ["mongoose", "npm:7.6.3"],\
@@ -862,6 +863,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["express", "npm:4.18.2"],\
             ["express-flash", "npm:0.0.2"],\
             ["express-session", "npm:1.17.3"],\
+            ["express-validator", "npm:7.0.1"],\
             ["jsonwebtoken", "npm:9.0.2"],\
             ["lusca", "npm:1.7.0"],\
             ["mongoose", "npm:7.6.3"],\
@@ -1438,6 +1440,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["express-validator", [\
+        ["npm:7.0.1", {\
+          "packageLocation": "./.yarn/cache/express-validator-npm-7.0.1-cd576fda4a-34431c1065.zip/node_modules/express-validator/",\
+          "packageDependencies": [\
+            ["express-validator", "npm:7.0.1"],\
+            ["lodash", "npm:4.17.21"],\
+            ["validator", "npm:13.11.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["fill-range", [\
         ["npm:7.0.1", {\
           "packageLocation": "./.yarn/cache/fill-range-npm-7.0.1-b8b1817caa-cc283f4e65.zip/node_modules/fill-range/",\
@@ -1953,6 +1966,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["kruptein", "npm:3.0.6"],\
             ["asn1.js", "npm:5.4.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["lodash", [\
+        ["npm:4.17.21", {\
+          "packageLocation": "./.yarn/cache/lodash-npm-4.17.21-6382451519-eb835a2e51.zip/node_modules/lodash/",\
+          "packageDependencies": [\
+            ["lodash", "npm:4.17.21"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -3340,6 +3362,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/v8-compile-cache-lib-npm-3.0.1-4886071ece-78089ad549.zip/node_modules/v8-compile-cache-lib/",\
           "packageDependencies": [\
             ["v8-compile-cache-lib", "npm:3.0.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["validator", [\
+        ["npm:13.11.0", {\
+          "packageLocation": "./.yarn/cache/validator-npm-13.11.0-f0143e2784-d1e0c27022.zip/node_modules/validator/",\
+          "packageDependencies": [\
+            ["validator", "npm:13.11.0"]\
           ],\
           "linkType": "HARD"\
         }]\

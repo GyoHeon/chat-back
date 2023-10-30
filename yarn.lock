@@ -699,6 +699,7 @@ __metadata:
     express: ^4.18.2
     express-flash: ^0.0.2
     express-session: ^1.17.3
+    express-validator: ^7.0.1
     jsonwebtoken: ^9.0.2
     lusca: ^1.7.0
     mongoose: ^7.6.3
@@ -1120,6 +1121,16 @@ __metadata:
     safe-buffer: 5.2.1
     uid-safe: ~2.1.5
   checksum: 1021a793433cbc6a1b32c803fcb2daa1e03a8f50dd907e8745ae57994370315a5cfde5b6ef7b062d9a9a0754ff268844bda211c08240b3a0e01014dcf1073ec5
+  languageName: node
+  linkType: hard
+
+"express-validator@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "express-validator@npm:7.0.1"
+  dependencies:
+    lodash: ^4.17.21
+    validator: ^13.9.0
+  checksum: 34431c106533e761c7875fea023940fb35b426509c5f3b21e30a4bd2f82833494ad047d4c0cc2626788964a720dd049b38156b13a1a9906243c66c68d32819a2
   languageName: node
   linkType: hard
 
@@ -1676,6 +1687,13 @@ __metadata:
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
   checksum: d768fa9f9b4e1dc6453be99b753906f58990e0c45e7b2ca5a3b40a33111e5d17f6edf2f768786e2716af90a8e78f8f91431ab8435f761fef00f9b0c256f6d245
+  languageName: node
+  linkType: hard
+
+"lodash@npm:^4.17.21":
+  version: 4.17.21
+  resolution: "lodash@npm:4.17.21"
+  checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
   languageName: node
   linkType: hard
 
@@ -2859,6 +2877,13 @@ __metadata:
   version: 3.0.1
   resolution: "v8-compile-cache-lib@npm:3.0.1"
   checksum: 78089ad549e21bcdbfca10c08850022b22024cdcc2da9b168bcf5a73a6ed7bf01a9cebb9eac28e03cd23a684d81e0502797e88f3ccd27a32aeab1cfc44c39da0
+  languageName: node
+  linkType: hard
+
+"validator@npm:^13.9.0":
+  version: 13.11.0
+  resolution: "validator@npm:13.11.0"
+  checksum: d1e0c27022681420756da25bc03eb08d5f0c66fb008f8ff02ebc95812b77c6be6e03d3bd05cf80ca702e23eeb73dadd66b4b3683173ea2a0bc7cc72820bee131
   languageName: node
   linkType: hard
 
