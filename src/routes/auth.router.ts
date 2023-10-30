@@ -1,9 +1,16 @@
 import express from "express";
-import passport from "passport";
+import jwt from "jsonwebtoken";
+import { User } from "../models/user.model.js";
 
 const authRouter = express.Router();
 
-authRouter.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+authRouter.post("/signup", async (req, res, next) => {
+  const { userId, name, password } = req.body;
+  const user = new User(req.body);
+
+  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
+
+  res.json({ accessToken });
+});

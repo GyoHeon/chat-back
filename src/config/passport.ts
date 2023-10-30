@@ -1,15 +1,20 @@
 import passport from "passport";
 import { Strategy } from "passport-local";
-import User from "../models/users.model.js";
+
+import { User } from "../models/user.model";
+
 
 // req.login(user)
-passport.serializeUser((user, done) => {
+passport.serializeUser<any, any>((req, user, done) => {
   done(null, user.id);
 });
 
 // client => session => request
 passport.deserializeUser((id, done) => {
-  User.findById(id).then((user) => {
+  User.scan('id').eq(id).exec((error, user) => {
+    if(error){
+      return done(error)
+    }
     // insert user to req.user
     done(null, user);
   });
@@ -18,9 +23,9 @@ passport.deserializeUser((id, done) => {
 passport.use(
   "local",
   new Strategy(
-    { usernameField: "email", passwordField: "password" },
-    async (email, password, done) => {
-      User.findOne({ email: email.toLowerCase() }).exec((err, user) => {
+    { usernameField: "name", passwordField: "password" },
+    async (id, password, done) => {
+      User.findOne({ id: id.toLowerCase() }).exec((err: Error, user) => {
         if (err) return done(err);
 
         if (!user) {

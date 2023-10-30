@@ -1,33 +1,31 @@
-import dynamoose from "dynamoose";
-import { schemaChat } from "./chat.model.js";
-import { schemaUser } from "./user.model.js";
+import mongoose from "mongoose";
 
-export const schemaMessage = new dynamoose.Schema(
+export type MessageDocument = mongoose.Document & {
+  id: string;
+  text: string;
+  userId: string;
+  chatId: string;
+};
+
+export const messageSchema = new mongoose.Schema<MessageDocument>(
   {
-    id: { type: String, required: true, hashKey: true },
+    id: { type: String, required: true, unique: true },
     text: { type: String, required: true },
-    user: { type: schemaUser, required: true },
-    chat: { type: schemaChat, required: true },
+    userId: { type: String, required: true },
+    chatId: { type: String, required: true },
   },
-  {
-    timestamps: {
-      createdAt: ["createdAt", "creation"],
-    },
-    validate: (message: typeof schemaMessage) => {
-      if (!message.user?.id) {
-        throw new Error("User cannot be empty");
-      }
-      if (!message.chat?.id) {
-        throw new Error("Chat cannot be empty");
-      }
-      if (message.text.length === 0) {
-        throw new Error("Text cannot be empty");
-      }
-      if (message.text.length > 1000) {
-        throw new Error("Text cannot be longer than 1000 characters");
-      }
-
-      return true;
-    },
-  }
+  { timestamps: true }
 );
+
+messageSchema.pre("save", function save(next) {
+  const message = this as MessageDocument;
+  if (message.text) {
+    throw new Error("Text cannot be empty");
+  }
+  if (message.text.length > 1000) {
+    throw new Error("Text cannot be longer than 1000 characters");
+  }
+  return next();
+});
+
+export const Chat = mongoose.model<MessageDocument>("Message", messageSchema);

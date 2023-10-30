@@ -1,17 +1,43 @@
-import dynamoose from "dynamoose";
+import bcrypt from "bcrypt-nodejs";
+import mongoose from "mongoose";
+import { MessageDocument } from "./message.model";
 
-import { schemaUser } from "./user.model.js";
+type ChatParticipant = {
+  id: string;
+  name: string;
+  picture: string;
+};
 
-export const schemaChat = new dynamoose.Schema(
+export type ChatDocument = mongoose.Document & {
+  id: string;
+  name: string;
+  isPrivate: boolean;
+  users: ChatParticipant[];
+  messages: MessageDocument[];
+};
+
+export const chatSchema = new mongoose.Schema<ChatDocument>(
   {
-    id: { type: String, required: true, hashKey: true },
+    id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    users: [schemaUser],
+    users: Array,
+    isPrivate: Boolean,
   },
-  {
-    timestamps: {
-      createdAt: ["createdAt", "creation"],
-      updatedAt: ["updatedAt", "updated"],
-    },
-  }
+  { timestamps: true }
 );
+
+chatSchema.pre("save", function save(next) {
+  const user = this as ChatDocument;
+  if (!user.isModified("password")) {
+    return next();
+  }
+  bcrypt.hash(user.id, undefined, (err: mongoose.Error, hash) => {
+    if (err) {
+      return next(err);
+    }
+    user.id = hash;
+    next();
+  });
+});
+
+export const Chat = mongoose.model<ChatDocument>("Chat", chatSchema);
