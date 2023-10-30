@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt-nodejs";
 import crypto from "crypto";
 import mongoose from "mongoose";
+import {
+  comparePassword,
+  comparePasswordFunction,
+} from "src/utils/comparePassword";
 import { ChatDocument } from "./chat.model";
 
 export type UserDocument = mongoose.Document & {
@@ -15,11 +19,6 @@ export type UserDocument = mongoose.Document & {
   comparePassword: comparePasswordFunction;
   gravatar: () => string;
 };
-
-type comparePasswordFunction = (
-  candidatePassword: string,
-  cb: (err: any, isMatch: any) => void
-) => void;
 
 export interface AuthToken {
   accessToken: string;
@@ -60,19 +59,6 @@ userSchema.pre("save", function save(next) {
     });
   });
 });
-
-const comparePassword: comparePasswordFunction = function (
-  candidatePassword,
-  cb
-) {
-  bcrypt.compare(
-    candidatePassword,
-    this.password,
-    (err: mongoose.Error, isMatch: boolean) => {
-      cb(err, isMatch);
-    }
-  );
-};
 
 userSchema.methods.comparePassword = comparePassword;
 
