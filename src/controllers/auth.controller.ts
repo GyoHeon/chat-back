@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt-nodejs";
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
@@ -41,8 +42,6 @@ export const postSignup = async (
 
   try {
     const existingUser = await User.findOne({ id: prefixedId });
-
-    console.log(existingUser);
 
     if (existingUser) {
       res
@@ -108,6 +107,17 @@ export const postLogin = async (
   const { id, serverId, password } = req.body;
 
   const prefixedId = makePrefixedId(id, serverId);
+
+  const user = await User.findOne({ id: prefixedId });
+  if (!user) {
+    return res.status(400).json({ message: "Invalid id or password" });
+  }
+
+  const valid = bcrypt.compare(password, user.password, (err, result) => {
+    if (err || !result) {
+      return res.status(400).json({ message: "Invalid id or password" });
+    }
+  });
 
   const accessToken = sign(
     { id: prefixedId },
