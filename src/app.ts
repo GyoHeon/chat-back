@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import compression from "compression"; // compresses requests
+import dotenv from "dotenv";
 import express from "express";
-import flash from "express-flash";
 import lusca from "lusca";
 import mongoose from "mongoose";
 import { MONGODB_URI } from "./utils/secrets";
@@ -9,6 +9,8 @@ import { MONGODB_URI } from "./utils/secrets";
 import * as authController from "./controllers/auth.controller";
 
 // Controllers (route handlers)
+
+dotenv.config({ path: ".env" });
 
 // Create Express server
 const app = express();
@@ -34,12 +36,7 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(flash());
 app.use(lusca.xssProtection(true));
-app.use((req, res, next) => {
-  res.locals.user = req.user;
-  next();
-});
 
 app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);

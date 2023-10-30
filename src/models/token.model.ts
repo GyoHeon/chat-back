@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-type TokenDocument = mongoose.Document & {
+export type TokenDocument = mongoose.Document & {
   userId: string;
   token: string;
   expires: Date;

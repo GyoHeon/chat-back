@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { verify } from "jsonwebtoken";
+import { UserRequest } from "../type/express";
 
 dotenv.config({ path: ".env" });
 
 export const authMiddleware = (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {

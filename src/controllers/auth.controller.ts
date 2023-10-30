@@ -1,10 +1,13 @@
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import { sign, verify } from "jsonwebtoken";
-import { Token } from "src/models/token.model";
 
-import { User, UserDocument } from "src/models/user.model";
-import { makePrefixedId } from "src/utils/makePrefixedId";
+import { Token } from "../models/token.model";
+import { User } from "../models/user.model";
+import { makePrefixedId } from "../utils/makePrefixedId";
+
+dotenv.config({ path: ".env" });
 
 export const postSignup = async (
   req: Request,
@@ -16,12 +19,14 @@ export const postSignup = async (
     .run(req);
   await check("name", "Name cannot be blank").isLength({ min: 1 }).run(req);
   await check("id", "Id cannot be blank").isLength({ min: 1 }).run(req);
+  await check("serverId", "ServerId cannot be blank")
+    .isLength({ min: 1 })
+    .run(req);
 
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    req.flash("errors", errors.formatWith((e) => e.msg).array());
-    res.json(401);
+    res.status(401).json({ message: errors });
   }
 
   const { id, serverId, password, name } = req.body;
@@ -34,23 +39,26 @@ export const postSignup = async (
     password,
   });
 
-  User.findOne(
-    { id: prefixedId },
-    async (err: NativeError, existingUser: UserDocument) => {
-      if (err) {
-        return next(err);
-      }
-      if (existingUser) {
-        req.flash("errors", "Account with that email address already exists.");
-        res.json(401);
-      }
-      try {
-        await user.save();
-      } catch (err) {
-        next(err);
-      }
+  try {
+    const existingUser = await User.findOne({ id: prefixedId });
+
+    console.log(existingUser);
+
+    if (existingUser) {
+      res
+        .status(401)
+        .json({ message: "Account with that id address already exists." });
     }
-  );
+
+    try {
+      await user.save();
+      res.status(200).json({ message: "User created" });
+    } catch (err) {
+      next(err);
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const postRefresh = (
@@ -75,24 +83,20 @@ export const postRefresh = (
 
     const prefixedId = makePrefixedId(id, serverId);
 
-    User.findOne({ id: prefixedId }, (err: NativeError, user: UserDocument) => {
-      if (err) {
-        return next(err);
+    const user = User.findOne({ id: prefixedId });
+    if (!user) {
+      return res.status(403);
+    }
+    const accessToken = sign(
+      { id: prefixedId },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "7d",
       }
-      if (!user) {
-        return res.status(403);
-      }
-      const accessToken = sign(
-        { id: prefixedId },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: "7d",
-        }
-      );
-      return res.json({ accessToken });
-    });
+    );
+    return res.json({ accessToken });
   } catch (err) {
-    return res.status(403);
+    return next(err);
   }
 };
 

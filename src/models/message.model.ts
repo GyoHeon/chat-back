@@ -23,7 +23,7 @@ export const messageSchema = new mongoose.Schema<MessageDocument>(
 
 messageSchema.pre("save", function save(next) {
   const message = this as MessageDocument;
-  if (message.text) {
+  if (!message.text.trim()) {
     throw new Error("Text cannot be empty");
   }
   if (message.text.length > 1000) {

@@ -4,10 +4,11 @@ import mongoose from "mongoose";
 import {
   comparePassword,
   comparePasswordFunction,
-} from "src/utils/comparePassword";
+} from "../utils/comparePassword";
 import { ChatDocument } from "./chat.model";
 
 export type UserDocument = mongoose.Document & {
+  _id: mongoose.Types.ObjectId;
   id: string;
   password: string;
   name: string;
