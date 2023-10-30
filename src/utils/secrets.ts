@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import fs from "fs";
+import * as fs from "fs";
 
 if (fs.existsSync(".env")) {
   console.log("Using .env file to supply config environment variables");

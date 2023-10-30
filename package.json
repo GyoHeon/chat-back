@@ -2,9 +2,8 @@
   "name": "chat-back",
   "packageManager": "yarn@3.6.4",
   "main": "./src/server.ts",
-  "type": "module",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon dist/server.js",
     "build": "tsc",
     "start": "node dist/index.js"
   },

@@ -5,8 +5,6 @@ import flash from "express-flash";
 import lusca from "lusca";
 import mongoose from "mongoose";
 import passport from "passport";
-import path from "path";
-import { DIR_NAME, PUBLIC_PATH } from "./constants/server";
 import { MONGODB_URI } from "./utils/secrets";
 
 // Controllers (route handlers)
@@ -33,8 +31,6 @@ mongoose
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
-app.set("views", path.join(__dirname, "../views"));
-app.set("view engine", "pug");
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,10 +43,6 @@ app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
-
-app.use(
-  express.static(path.join(DIR_NAME, PUBLIC_PATH), { maxAge: 31557600000 })
-);
 
 /**
  * Primary app routes.
