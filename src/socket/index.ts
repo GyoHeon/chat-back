@@ -1,10 +1,9 @@
-import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import app from "../app";
 
-const app = express();
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+export const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
 
 io.use((socket, next) => {
   const username = socket.handshake.auth.username;
@@ -40,15 +39,6 @@ io.on("connection", (socket) => {
   socket.on("fetch-messages", ({ receiver }) => {});
 
   socket.on("stored-messages", ({ messages }) => {});
-});
-
-const PORT = 4000;
-
-app.use(express.json());
-app.use(express.urlencoded());
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
 
 app.post("/session", (req, res) => {
