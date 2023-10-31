@@ -1,0 +1,37 @@
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main # or any other branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node # action이 구동될 Node 환경을 세팅해준다.
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: npm compile with babel # babel을 이용하여 es5로의 컴파일을 진행해준다.
+        working-directory: ./WEB(BE)
+        run: npm run compile # npx babel src --out-dir dist(실제 실행되는 명령어)
+
+      - name: make zip file # 압축 파일을 만들어준다.
+        working-directory: ./WEB(BE)
+        run: zip -r app.zip package.json ./dist
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: MyApplicationName
+          environment_name: MyApplication-Environment
+          version_label: ${{ github.run_number }}
+          region: ap-northeast-2
