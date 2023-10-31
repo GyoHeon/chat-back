@@ -94,9 +94,10 @@ export const postLogin = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id, serverId, password } = req.body;
+  const { id, password } = req.body;
+  const { serverid } = req.headers;
 
-  const prefixedId = makePrefixedId(id, serverId);
+  const prefixedId = makePrefixedId(id, serverid as string);
 
   const user = await User.findOne({ id: prefixedId });
   if (!user) {

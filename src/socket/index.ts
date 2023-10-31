@@ -63,9 +63,11 @@ chat.on("connection", async (socket) => {
     try {
       chat.messages.push(messageData);
 
-      console.log(chat);
+      console.log("before", chat);
 
       await chat.save();
+
+      console.log("after", chat);
 
       socket.to(roomId).emit("message", messageData);
     } catch (error) {

@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Chat } from "../models/chat.model";
 import { User, UserDocument } from "../models/user.model";
 import { UserRequest } from "../type/express";
+import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 
 dotenv.config({ path: ".env" });
@@ -55,7 +56,15 @@ export const getAllChats = async (
 
     const pickChats = chats.map((chat) => {
       const { id, name, users, isPrivate, updatedAt } = chat;
-      return { id, name, users, isPrivate, updatedAt };
+      const originalId = deletePrefixedId(id);
+      const originalUsers = users.map((user) => deletePrefixedId(user));
+      return {
+        id: originalId,
+        name,
+        users: originalUsers,
+        isPrivate,
+        updatedAt,
+      };
     });
     return res.status(200).json({ chats: pickChats });
   } catch (err) {
@@ -108,5 +117,29 @@ export const postChat = async (
     return res
       .status(500)
       .json({ message: "Internal Server Error with chat creation" });
+  }
+};
+
+export const updateParticipate = async (req: UserRequest, res: Response) => {
+  const { serverid } = req.headers;
+  const { chatId } = req.body;
+  const user = req.user as UserDocument;
+
+  const prefixedChatId = makePrefixedId(chatId, serverid as string);
+
+  try {
+    const chat = await Chat.findOne({ id: prefixedChatId });
+
+    const existingUser = chat.users.find((id) => id === user.id);
+    if (existingUser) {
+      return res.status(400).json({ message: "Already participated" });
+    }
+    chat.users.push(user.id);
+
+    await chat.save();
+
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

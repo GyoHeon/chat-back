@@ -12,7 +12,7 @@ export type ChatDocument = mongoose.Document & {
   id: string;
   name: string;
   isPrivate: boolean;
-  users: ChatParticipant[];
+  users: string[];
   messages: MessageDocument[];
   updatedAt: Date;
   createdAt: Date;
