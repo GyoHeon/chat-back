@@ -46,6 +46,9 @@ app.post("/refresh", authController.postRefresh);
 app.post("/logout", authController.postLogout);
 
 app.get("/users", authMiddleware, chatController.getUsers);
+app.get("/allchat", authMiddleware, chatController.getAllChats);
+app.get("/chat", authMiddleware, chatController.getChat);
+app.post("/chat", authMiddleware, chatController.postChat);
 
 /**
  * Primary app routes.

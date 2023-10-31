@@ -39,6 +39,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/lusca", "npm:1.7.3"],\
             ["@types/mongodb", "npm:4.0.7"],\
             ["@types/node", "npm:20.8.7"],\
+            ["@types/uuid", "npm:9.0.6"],\
             ["bcrypt-nodejs", "npm:0.0.3"],\
             ["body-parser", "npm:1.20.2"],\
             ["compression", "npm:1.7.4"],\
@@ -55,7 +56,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["nodemon", "npm:3.0.1"],\
             ["socket.io", "npm:4.7.2"],\
             ["ts-node", "virtual:0ad4fed997a6f48a82b328fcd6ebafdfe1490a6d35849dc98332c6ed19a19a4e63c9abf36a7099f11499f04c89a0015289cb95f043fcafaa2dffb77e5c8dc8cd#npm:10.9.1"],\
-            ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"]\
+            ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"],\
+            ["uuid", "npm:9.0.1"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -423,6 +425,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/http-errors", "npm:2.0.3"],\
             ["@types/mime", "npm:3.0.3"],\
             ["@types/node", "npm:20.8.7"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/uuid", [\
+        ["npm:9.0.6", {\
+          "packageLocation": "./.yarn/cache/@types-uuid-npm-9.0.6-741993c9d3-739dcb2e62.zip/node_modules/@types/uuid/",\
+          "packageDependencies": [\
+            ["@types/uuid", "npm:9.0.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -815,6 +826,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/lusca", "npm:1.7.3"],\
             ["@types/mongodb", "npm:4.0.7"],\
             ["@types/node", "npm:20.8.7"],\
+            ["@types/uuid", "npm:9.0.6"],\
             ["bcrypt-nodejs", "npm:0.0.3"],\
             ["body-parser", "npm:1.20.2"],\
             ["compression", "npm:1.7.4"],\
@@ -831,7 +843,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["nodemon", "npm:3.0.1"],\
             ["socket.io", "npm:4.7.2"],\
             ["ts-node", "virtual:0ad4fed997a6f48a82b328fcd6ebafdfe1490a6d35849dc98332c6ed19a19a4e63c9abf36a7099f11499f04c89a0015289cb95f043fcafaa2dffb77e5c8dc8cd#npm:10.9.1"],\
-            ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"]\
+            ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"],\
+            ["uuid", "npm:9.0.1"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -3272,6 +3285,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/utils-merge-npm-1.0.1-363bbdfbca-c810954932.zip/node_modules/utils-merge/",\
           "packageDependencies": [\
             ["utils-merge", "npm:1.0.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["uuid", [\
+        ["npm:9.0.1", {\
+          "packageLocation": "./.yarn/cache/uuid-npm-9.0.1-39a8442bc6-39931f6da7.zip/node_modules/uuid/",\
+          "packageDependencies": [\
+            ["uuid", "npm:9.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\

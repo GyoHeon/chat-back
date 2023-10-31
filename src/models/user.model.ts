@@ -15,8 +15,6 @@ export type UserDocument = mongoose.Document & {
   picture: string;
   chats: ChatDocument[];
 
-  serverId: string;
-
   comparePassword: comparePasswordFunction;
   gravatar: () => string;
 };
@@ -33,8 +31,6 @@ export const userSchema = new mongoose.Schema<UserDocument>(
     name: { type: String, required: true },
     picture: String,
     chats: Array,
-
-    serverId: String,
   },
   { timestamps: true }
 );

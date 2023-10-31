@@ -6,8 +6,6 @@ export type MessageDocument = mongoose.Document & {
   text: string;
   userId: string;
   chatId: string;
-
-  serverId: string;
 };
 
 export const messageSchema = new mongoose.Schema<MessageDocument>(
@@ -16,8 +14,6 @@ export const messageSchema = new mongoose.Schema<MessageDocument>(
     text: { type: String, required: true },
     userId: { type: String, required: true },
     chatId: { type: String, required: true },
-
-    serverId: String,
   },
   { timestamps: true }
 );

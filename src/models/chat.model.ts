@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt-nodejs";
 import mongoose from "mongoose";
 import { MessageDocument } from "./message.model";
 
@@ -15,8 +14,6 @@ export type ChatDocument = mongoose.Document & {
   isPrivate: boolean;
   users: ChatParticipant[];
   messages: MessageDocument[];
-
-  serverId: string;
 };
 
 export const chatSchema = new mongoose.Schema<ChatDocument>(
@@ -25,24 +22,8 @@ export const chatSchema = new mongoose.Schema<ChatDocument>(
     name: { type: String, required: true },
     users: Array,
     isPrivate: Boolean,
-
-    serverId: String,
   },
   { timestamps: true }
 );
-
-chatSchema.pre("save", function save(next) {
-  const user = this as ChatDocument;
-  if (!user.isModified("password")) {
-    return next();
-  }
-  bcrypt.hash(user.id, undefined, (err: mongoose.Error, hash) => {
-    if (err) {
-      return next(err);
-    }
-    user.id = hash;
-    next();
-  });
-});
 
 export const Chat = mongoose.model<ChatDocument>("Chat", chatSchema, "Chat");
