@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt-nodejs";
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 export type comparePasswordFunction = (

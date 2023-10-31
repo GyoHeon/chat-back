@@ -138,6 +138,10 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
     await chat.save();
 
+    req.app.get("io").of("/chat").to(prefixedChatId).emit("participate", {
+      user,
+    });
+
     res.status(200).json({ message: "Success" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });

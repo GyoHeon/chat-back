@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { NextFunction, Response } from "express";
-import { verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 
 import { UserRequest } from "../type/express";
 
@@ -22,7 +22,7 @@ export const authMiddleware = (
     if (err) {
       return res.sendStatus(403);
     }
-    req.user = user;
+    req.user = user as JwtPayload;
     next();
   });
 };

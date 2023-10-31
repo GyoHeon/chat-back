@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt-nodejs";
+import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
@@ -6,6 +6,7 @@ import { sign, verify } from "jsonwebtoken";
 
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
+import { UserRequest } from "../type/express";
 import { makePrefixedId } from "../utils/makePrefixedId";
 
 dotenv.config({ path: ".env" });
@@ -14,7 +15,7 @@ export const postSignup = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   await check("password", "Password must be at least 5 characters long")
     .isLength({ min: 5 })
     .run(req);
@@ -23,41 +24,43 @@ export const postSignup = async (
   await check("id", "Id only alphabetic and numbers")
     .matches(/^[a-zA-Z0-9]+$/)
     .run(req);
-  await check("serverId", "ServerId cannot be blank").notEmpty().run(req);
+  await check("serverid", "ServerId cannot be blank").notEmpty().run(req);
 
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    res.status(401).json({ message: errors });
+    return res.status(401).json({ message: errors });
   }
 
-  const { id, serverId, password, name } = req.body;
+  const { id, password, name } = req.body;
+  const { serverid } = req.headers;
 
-  const prefixedId = makePrefixedId(id, serverId);
-
-  const user = new User({
-    id: prefixedId,
-    name,
-    password,
-  });
+  const prefixedId = makePrefixedId(id, serverid as string);
 
   try {
     const existingUser = await User.findOne({ id: prefixedId });
 
     if (existingUser) {
-      res
+      return res
         .status(401)
         .json({ message: "Account with that id address already exists." });
     }
-
-    try {
-      await user.save();
-      res.status(200).json({ message: "User created" });
-    } catch (err) {
-      next(err);
-    }
   } catch (err) {
-    next(err);
+    return res.status(401).json({ message: "Invalid id or password" });
+  }
+
+  try {
+    const user = new User({
+      id: prefixedId,
+      name,
+      password,
+    });
+
+    await user.save();
+
+    return res.status(200).json({ message: "User created" });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid id or password" });
   }
 };
 
@@ -90,7 +93,7 @@ export const postRefresh = async (
 };
 
 export const postLogin = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -101,14 +104,13 @@ export const postLogin = async (
 
   const user = await User.findOne({ id: prefixedId });
   if (!user) {
-    return res.status(400).json({ message: "Invalid id or password" });
+    return res.status(400).json({ message: "Invalid id" });
   }
 
-  bcrypt.compare(password, user.password, (err, result) => {
-    if (err || !result) {
-      return res.status(400).json({ message: "Invalid id or password" });
-    }
-  });
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    return res.status(401).json({ message: "Invalid password" });
+  }
 
   const accessToken = sign(
     { id: prefixedId },
@@ -125,15 +127,24 @@ export const postLogin = async (
     }
   );
 
-  const token = new Token({
+  const token = {
     userId: prefixedId,
     token: refreshToken,
     expires: new Date(Date.now() + 3600000 * 24 * 7),
-  });
+  };
+  try {
+    const existingToken = await Token.findOne({ userId: prefixedId });
+    if (existingToken) {
+      await Token.updateOne({ userId: prefixedId }, token);
+    } else {
+      const newToken = new Token(token);
+      await newToken.save();
+    }
 
-  await token.save();
-
-  res.json({ accessToken, refreshToken });
+    return res.status(200).json({ accessToken, refreshToken });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid id or password" });
+  }
 };
 
 export const postLogout = (

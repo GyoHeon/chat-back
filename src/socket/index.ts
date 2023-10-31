@@ -6,6 +6,7 @@ import app from "../app";
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
 import { User } from "../models/user.model";
+import { makePrefixedId } from "../utils/makePrefixedId";
 import { verifyToken } from "../utils/verifyToken";
 
 export const httpServer = createServer(app);
@@ -35,18 +36,23 @@ chat.use((socket, next) => {
 });
 
 chat.on("connection", async (socket) => {
-  const { roomId, serverId } = socket.handshake.query;
+  const { chatId, serverId } = socket.handshake.query;
   const user = socket.data.user;
 
-  console.log(roomId, serverId);
-
-  if (!(roomId && serverId)) {
+  if (!(chatId && serverId)) {
     return;
   }
 
-  const chat = await Chat.findOne({ id: roomId });
+  const prefixedId = makePrefixedId(chatId as string, serverId as string);
+
+  const chat = await Chat.findOne({ id: prefixedId });
 
   if (!chat) {
+    return;
+  }
+
+  const isParticipated = chat.users.some((id) => id === user.id);
+  if (!isParticipated) {
     return;
   }
 
@@ -56,24 +62,21 @@ chat.on("connection", async (socket) => {
       id: messageId,
       text: message,
       userId: user.id,
+      createdAt: new Date(),
     });
 
     console.log(message, messageData, messageId);
 
     try {
-      chat.messages.push(messageData);
+      await chat.updateOne({ $push: { messages: messageData } });
 
-      console.log("before", chat);
-
-      await chat.save();
-
-      console.log("after", chat);
-
-      socket.to(roomId).emit("message", messageData);
+      socket.to(prefixedId).emit("new-message", messageData);
     } catch (error) {
       console.log(error);
     }
   });
+
+  socket.on("join", async () => {});
 });
 
 io.on("connection", async (socket) => {

@@ -6,7 +6,6 @@ export type MessageDocument = mongoose.Document & {
   text: string;
   userId: string;
 
-  updatedAt: Date;
   createdAt: Date;
 };
 
@@ -15,11 +14,12 @@ export const messageSchema = new mongoose.Schema<MessageDocument>(
     id: { type: String, required: true, unique: true },
     text: { type: String, required: true },
     userId: { type: String, required: true },
+    createdAt: Date,
   },
   { timestamps: true }
 );
 
-messageSchema.pre("save", function save(next) {
+messageSchema.pre("init", function save(next) {
   const message = this as MessageDocument;
   if (!message.text.trim()) {
     throw new Error("Text cannot be empty");
@@ -27,6 +27,7 @@ messageSchema.pre("save", function save(next) {
   if (message.text.length > 1000) {
     throw new Error("Text cannot be longer than 1000 characters");
   }
+
   return next();
 });
 

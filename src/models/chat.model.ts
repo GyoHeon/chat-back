@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 import { MessageDocument } from "./message.model";
 
-type ChatParticipant = {
-  id: string;
-  name: string;
-  picture: string;
-};
-
 export type ChatDocument = mongoose.Document & {
   _id: mongoose.Types.ObjectId;
   id: string;
