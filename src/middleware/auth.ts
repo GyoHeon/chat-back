@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { NextFunction, Response } from "express";
 import { verify } from "jsonwebtoken";
+
 import { UserRequest } from "../type/express";
 
 dotenv.config({ path: ".env" });

@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import { MONGODB_URI } from "./utils/secrets";
 
 import * as authController from "./controllers/auth.controller";
+import * as chatController from "./controllers/chat.controller";
+import { authMiddleware } from "./middleware/auth";
 
 // Controllers (route handlers)
 
@@ -42,6 +44,8 @@ app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
 app.post("/refresh", authController.postRefresh);
 app.post("/logout", authController.postLogout);
+
+app.get("/users", authMiddleware, chatController.getUsers);
 
 /**
  * Primary app routes.

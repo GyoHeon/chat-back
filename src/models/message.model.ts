@@ -33,7 +33,7 @@ messageSchema.pre("save", function save(next) {
   return next();
 });
 
-export const Chat = mongoose.model<MessageDocument>(
+export const Message = mongoose.model<MessageDocument>(
   "Message",
   messageSchema,
   "Message"
