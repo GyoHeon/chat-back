@@ -14,7 +14,6 @@ export type UserDocument = mongoose.Document & {
   name: string;
   picture: string;
   chats: ChatDocument[];
-  tokens: AuthToken[];
 
   serverId: string;
 
@@ -34,7 +33,6 @@ export const userSchema = new mongoose.Schema<UserDocument>(
     name: { type: String, required: true },
     picture: String,
     chats: Array,
-    tokens: Array,
 
     serverId: String,
   },
@@ -50,7 +48,6 @@ userSchema.pre("save", function save(next) {
     return next();
   }
   user.chats = [];
-  user.tokens = [];
   user.picture = user.gravatar();
   bcrypt.genSalt(10, (err, salt) => {
     if (err) {
@@ -77,4 +74,4 @@ userSchema.methods.gravatar = function () {
   return `https://gravatar.com/avatar/${md5}?s=200&d=retro`;
 };
 
-export const User = mongoose.model<UserDocument>("User", userSchema);
+export const User = mongoose.model<UserDocument>("User", userSchema, "User");

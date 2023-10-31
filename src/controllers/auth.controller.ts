@@ -19,10 +19,11 @@ export const postSignup = async (
     .isLength({ min: 5 })
     .run(req);
   await check("name", "Name cannot be blank").isLength({ min: 1 }).run(req);
-  await check("id", "Id cannot be blank").isLength({ min: 1 }).run(req);
-  await check("serverId", "ServerId cannot be blank")
-    .isLength({ min: 1 })
+  await check("id", "Id cannot be blank").notEmpty().run(req);
+  await check("id", "Id only alphabetic and numbers")
+    .matches(/^[a-zA-Z0-9]+$/)
     .run(req);
+  await check("serverId", "ServerId cannot be blank").notEmpty().run(req);
 
   const errors = validationResult(req);
 
@@ -40,6 +41,14 @@ export const postSignup = async (
     password,
   });
 
+  const refreshToken = sign(
+    { id: prefixedId },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "2w",
+    }
+  );
+
   try {
     const existingUser = await User.findOne({ id: prefixedId });
 
@@ -47,6 +56,18 @@ export const postSignup = async (
       res
         .status(401)
         .json({ message: "Account with that id address already exists." });
+    }
+
+    const token = new Token({
+      id: prefixedId,
+      token: refreshToken,
+      expires: new Date(Date.now() + 3600000 * 24 * 7),
+    });
+
+    try {
+      await token.save();
+    } catch (err) {
+      next(err);
     }
 
     try {

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export type MessageDocument = mongoose.Document & {
+  _id: mongoose.Types.ObjectId;
   id: string;
   text: string;
   userId: string;
@@ -32,4 +33,8 @@ messageSchema.pre("save", function save(next) {
   return next();
 });
 
-export const Chat = mongoose.model<MessageDocument>("Message", messageSchema);
+export const Chat = mongoose.model<MessageDocument>(
+  "Message",
+  messageSchema,
+  "Message"
+);

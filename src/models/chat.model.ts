@@ -9,6 +9,7 @@ type ChatParticipant = {
 };
 
 export type ChatDocument = mongoose.Document & {
+  _id: mongoose.Types.ObjectId;
   id: string;
   name: string;
   isPrivate: boolean;
@@ -44,4 +45,4 @@ chatSchema.pre("save", function save(next) {
   });
 });
 
-export const Chat = mongoose.model<ChatDocument>("Chat", chatSchema);
+export const Chat = mongoose.model<ChatDocument>("Chat", chatSchema, "Chat");
