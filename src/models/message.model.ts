@@ -6,6 +6,9 @@ export type MessageDocument = mongoose.Document & {
   text: string;
   userId: string;
   chatId: string;
+
+  updatedAt: Date;
+  createdAt: Date;
 };
 
 export const messageSchema = new mongoose.Schema<MessageDocument>(
