@@ -23,11 +23,20 @@ export const chatSchema = new mongoose.Schema<ChatDocument>(
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     users: Array,
+    messages: Array,
     isPrivate: Boolean,
   },
   {
     timestamps: true,
   }
 );
+
+chatSchema.pre("save", function (next) {
+  const chat = this as ChatDocument;
+
+  chat.messages = [];
+
+  return next();
+});
 
 export const Chat = mongoose.model<ChatDocument>("Chat", chatSchema, "Chat");

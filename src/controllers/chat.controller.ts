@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 
 import { Chat } from "../models/chat.model";
 import { User, UserDocument } from "../models/user.model";
@@ -71,7 +71,7 @@ export const postChat = async (
   const { serverid } = req.headers;
   const { name, users, isPrivate = false } = req.body;
 
-  const id = uuidv4();
+  const id = randomUUID();
   const prefixId = makePrefixedId(id, serverid as string);
 
   const user = req.user as UserDocument;

@@ -313,13 +313,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^9.0.6":
-  version: 9.0.6
-  resolution: "@types/uuid@npm:9.0.6"
-  checksum: 739dcb2e620ff097fa916edeab455eb75640c4883a850784fdb15b32f67b719e05275c6d6419bb6da11350d26bd14ed05ba5e992ff228411cdd98cbc772d71ef
-  languageName: node
-  linkType: hard
-
 "@types/webidl-conversions@npm:*":
   version: 7.0.2
   resolution: "@types/webidl-conversions@npm:7.0.2"
@@ -665,7 +658,6 @@ __metadata:
     "@types/lusca": ^1.7.3
     "@types/mongodb": ^4.0.7
     "@types/node": ^20.8.7
-    "@types/uuid": ^9.0.6
     bcrypt-nodejs: ^0.0.3
     body-parser: ^1.20.2
     compression: ^1.7.4
@@ -683,7 +675,6 @@ __metadata:
     socket.io: ^4.7.2
     ts-node: ^10.9.1
     typescript: ^5.2.2
-    uuid: ^9.0.1
   languageName: unknown
   linkType: soft
 
@@ -2811,15 +2802,6 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: c81095493225ecfc28add49c106ca4f09cdf56bc66731aa8dabc2edbbccb1e1bfe2de6a115e5c6a380d3ea166d1636410b62ef216bb07b3feb1cfde1d95d5080
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "uuid@npm:9.0.1"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 
