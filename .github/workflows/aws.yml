@@ -18,9 +18,9 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: npm compile with babel # babel을 이용하여 es5로의 컴파일을 진행해준다.
+      - name: yarn build
         working-directory: .
-        run: npm run compile # npx babel src --out-dir dist(실제 실행되는 명령어)
+        run: yarn run build
 
       - name: make zip file # 압축 파일을 만들어준다.
         working-directory: .
