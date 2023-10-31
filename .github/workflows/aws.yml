@@ -35,3 +35,4 @@ jobs:
           environment_name: Chat-back-env
           version_label: ${{ github.run_number }}
           region: ap-northeast-2
+          deployment_package: app.zip
