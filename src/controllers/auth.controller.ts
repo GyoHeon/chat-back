@@ -41,14 +41,6 @@ export const postSignup = async (
     password,
   });
 
-  const refreshToken = sign(
-    { id: prefixedId },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "2w",
-    }
-  );
-
   try {
     const existingUser = await User.findOne({ id: prefixedId });
 
@@ -56,18 +48,6 @@ export const postSignup = async (
       res
         .status(401)
         .json({ message: "Account with that id address already exists." });
-    }
-
-    const token = new Token({
-      id: prefixedId,
-      token: refreshToken,
-      expires: new Date(Date.now() + 3600000 * 24 * 7),
-    });
-
-    try {
-      await token.save();
-    } catch (err) {
-      next(err);
     }
 
     try {
@@ -81,42 +61,31 @@ export const postSignup = async (
   }
 };
 
-export const postRefresh = (
+export const postRefresh = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { cookies } = req;
+  const { refreshToken } = req.body;
 
-  if (!cookies?.refreshToken) {
-    return res.status(401);
-  }
-
-  const { refreshToken } = cookies;
   if (!refreshToken) {
-    return res.status(403);
+    return res.status(403).json({ message: "Unauthorized" });
   }
 
   try {
     const decoded = verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const { id, serverId } = decoded as { id: string; serverId: string };
+    const { id } = decoded as { id: string };
 
-    const prefixedId = makePrefixedId(id, serverId);
-
-    const user = User.findOne({ id: prefixedId });
+    const user = await User.findOne({ id });
     if (!user) {
       return res.status(403);
     }
-    const accessToken = sign(
-      { id: prefixedId },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const accessToken = sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "7d",
+    });
     return res.json({ accessToken });
   } catch (err) {
-    return next(err);
+    return res.status(403);
   }
 };
 
@@ -134,7 +103,7 @@ export const postLogin = async (
     return res.status(400).json({ message: "Invalid id or password" });
   }
 
-  const valid = bcrypt.compare(password, user.password, (err, result) => {
+  bcrypt.compare(password, user.password, (err, result) => {
     if (err || !result) {
       return res.status(400).json({ message: "Invalid id or password" });
     }

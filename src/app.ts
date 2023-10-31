@@ -40,6 +40,8 @@ app.use(lusca.xssProtection(true));
 
 app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
+app.post("/refresh", authController.postRefresh);
+app.post("/logout", authController.postLogout);
 
 /**
  * Primary app routes.
