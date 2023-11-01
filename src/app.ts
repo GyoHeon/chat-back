@@ -53,12 +53,15 @@ app.post("/chat", chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
 app.patch("/chat/participate", chatController.updateParticipate);
 app.patch("/chat/invite", chatController.inviteParticipate);
+app.patch("/chat/leave", chatController.leaveChat);
 
 /**
  * Primary app routes.
  */
 
-app.get("/health", (_, res: Response) => res.status(200).send("OK"));
+app.get("/health", (_, res: Response) =>
+  res.status(200).send("Health check OK")
+);
 
 /**
  * OAuth authentication routes. (Sign in)

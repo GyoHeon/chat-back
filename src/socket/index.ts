@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import app from "../app";
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
+import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 import { verifyToken } from "../utils/verifyToken";
 
@@ -49,7 +50,6 @@ chatSocket.on("connection", async (socket) => {
     return socket.disconnect();
   }
   socket.join([prefixedId, serverId as string]);
-  console.log(socket.rooms);
 
   const chat = await Chat.findOne({ id: prefixedId });
 
@@ -65,7 +65,7 @@ chatSocket.on("connection", async (socket) => {
   socket.on("fetch-messages", async () => {
     try {
       const chat = await Chat.findOne({ id: prefixedId });
-      const messages = chat.messages;
+      const messages = chat.messages.reverse();
       if (!messages) {
         return socket.emit("messages-to-client", { messages: [] });
       }
@@ -77,11 +77,16 @@ chatSocket.on("connection", async (socket) => {
 
   socket.on("message-to-server", async (message) => {
     const messageId = randomUUID();
-    const messageData = new Message({
+    const responseMessage = {
       id: messageId,
       text: message,
-      userId: user.id,
+      userId: deletePrefixedId(user.id),
       createdAt: new Date(),
+    };
+
+    const messageData = new Message({
+      ...responseMessage,
+      userId: user.id,
     });
 
     try {
@@ -89,37 +94,9 @@ chatSocket.on("connection", async (socket) => {
 
       await chat.updateOne({ $push: { messages: messageData } });
 
-      chatSocket.to(prefixedId).emit("message-to-client", messageData);
+      chatSocket.to(prefixedId).emit("message-to-client", responseMessage);
     } catch (error) {
       socket.disconnect();
     }
   });
-
-  socket.on("join", async () => {
-    socket.to(prefixedId).emit("users", { user });
-  });
-  socket.on("leave", async () => {
-    socket.to(prefixedId).emit("users", { user });
-  });
-});
-
-io.on("connection", async (socket) => {
-  // io.emit("users-data", { users });
-
-  // message from client
-  socket.on("message-to-server", (payload) => {});
-
-  // exit chat
-  socket.on("disconnect", () => {});
-
-  // import message from database
-  socket.on("fetch-messages", ({ receiver }) => {});
-
-  socket.on("stored-messages", ({ messages }) => {});
-});
-
-app.post("/session", (req, res) => {
-  const data = {};
-
-  res.send(data);
 });

@@ -157,13 +157,21 @@ export const postChat = async (
       })
     );
 
-    return res.status(200).json({
-      id,
-      name,
+    const responseChat = {
+      id: deletePrefixedId(chat.id),
+      name: chat.name,
       users: originalUsers,
-      isPrivate,
+      isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
-    });
+    };
+
+    if (!chat.isPrivate) {
+      req.app.get("io").of("/chat").to(serverid).emit("new-chat", {
+        responseChat,
+      });
+    }
+
+    return res.status(200).json(responseChat);
   } catch (err) {
     return res
       .status(500)
@@ -203,14 +211,21 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     await chat.save();
     await my.save();
 
-    req.app.get("io").of("/chat").to(prefixedChatId).emit("participate", {
-      user,
-    });
+    const allUsers = [user.id, ...chat.users].map((id) => deletePrefixedId(id));
+
+    req.app
+      .get("io")
+      .of("/chat")
+      .to(prefixedChatId)
+      .emit("join", {
+        users: allUsers,
+        joiners: [user],
+      });
 
     const responseChat = {
       id: deletePrefixedId(chat.id),
       name: chat.name,
-      users: chat.users.map((id) => deletePrefixedId(id)),
+      users: allUsers,
       isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
     };
@@ -220,7 +235,6 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const inviteParticipate = async (req: UserRequest, res: Response) => {
   const { serverid, authorization } = req.headers;
   const { chatId, users } = req.body;
@@ -286,10 +300,6 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       ...users,
     ];
 
-    req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
-      users: allUsers,
-    });
-
     const responseChat = {
       id: deletePrefixedId(chat.id),
       name: chat.name,
@@ -298,7 +308,64 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       updatedAt: chat.updatedAt,
     };
 
+    req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
+      users: allUsers,
+      joiners: users,
+    });
+
     res.status(200).json(responseChat);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const leaveChat = async (req: UserRequest, res: Response) => {
+  const { serverid, authorization } = req.headers;
+  const { chatId } = req.body;
+
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+  const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  const prefixedChatId = makePrefixedId(chatId, serverid as string);
+
+  try {
+    const chat = await Chat.findOne({ id: prefixedChatId });
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    const existingUser = chat.users.find((id) => id === user.id);
+    if (!existingUser) {
+      return res.status(400).json({ message: "Not my chat" });
+    }
+    const userFromDb = await User.findOne({ id: user.id });
+    if (!userFromDb) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await chat.updateOne({ $pull: { users: user.id } });
+    await userFromDb.updateOne({ $pull: { chats: chat.id } });
+
+    const allUsers = chat.users
+      .filter((id) => id !== user.id)
+      .map((id) => deletePrefixedId(id));
+
+    req.app
+      .get("io")
+      .of("/chat")
+      .to(prefixedChatId)
+      .emit("leave", {
+        users: allUsers,
+        leaver: deletePrefixedId(user.id),
+      });
+
+    res.status(200).json({ message: "Leave success" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
