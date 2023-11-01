@@ -16,10 +16,10 @@ jobs:
       - name: Create env file
         run: |
           touch .env
-          echo PORT=${{ env.PORT }} >> .env
-          echo MONGO_URL=${{ env.MONGO_URL }} >> .env
-          echo ACCESS_TOKEN_SECRET = ${{ env.ACCESS_TOKEN_SECRET }} >> .env
-          echo REFRESH_TOKEN_SECRET = ${{ env.REFRESH_TOKEN_SECRET }} >> .env
+          echo PORT=$PORT >> .env
+          echo MONGO_URL=$MONGO_URL >> .env
+          echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET >> .env
+          echo REFRESH_TOKEN_SECRET=$REFRESH_TOKEN_SECRET >> .env
 
       - name: Set up Node
         uses: actions/setup-node@v3
