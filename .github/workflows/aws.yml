@@ -21,8 +21,8 @@ jobs:
           MONGO_URL: ${{ toJson(secrets.MONGO_URL) }}}
         run: |
           touch .env
-          echo MONGO_URL=$MONGO_URL >> .env
           echo PORT=$PORT >> .env
+          echo MONGO_URL=$MONGO_URL >> .env
           echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET >> .env
           echo REFRESH_TOKEN_SECRET=REFRESH_TOKEN_SECRET >> .env
 
