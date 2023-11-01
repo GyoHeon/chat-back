@@ -31,6 +31,10 @@ jobs:
         with:
           node-version: 18
 
+      - name: install
+        working-directory: .
+        run: npm run install
+
       - name: build
         working-directory: .
         run: npm run build
