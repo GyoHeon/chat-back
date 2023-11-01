@@ -18,12 +18,9 @@ jobs:
           PORT: ${{ vars.PORT }}
           ACCESS_TOKEN_SECRET: ${{ vars.ACCESS_TOKEN_SECRET }}
           REFRESH_TOKEN_SECRET: ${{ vars.REFRESH_TOKEN_SECRET }}
-          MONGO_URL: ${{ secrets.MONGO_URL }}}
+          MONGO_URL: ${{ toJson(secrets.MONGO_URL) }}}
         run: |
           touch .env
-          echo "$MONGO_URL"
-          echo "$PORT"
-          echo "$ACCESS_TOKEN_SECRET"
           echo MONGO_URL=$MONGO_URL >> .env
           echo PORT=$PORT >> .env
           echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET >> .env
