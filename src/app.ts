@@ -9,7 +9,6 @@ import { MONGODB_URI } from "./utils/secrets";
 
 import * as authController from "./controllers/auth.controller";
 import * as chatController from "./controllers/chat.controller";
-import { authMiddleware } from "./middleware/auth";
 
 // Controllers (route handlers)
 
@@ -52,11 +51,8 @@ app.get("/users", chatController.getUsers);
 app.get("/chat", chatController.getChat);
 app.post("/chat", chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
-app.patch(
-  "/chat/participate",
-  authMiddleware,
-  chatController.updateParticipate
-);
+app.patch("/chat/participate", chatController.updateParticipate);
+app.patch("/chat/invite", chatController.inviteParticipate);
 
 /**
  * Primary app routes.

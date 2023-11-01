@@ -188,20 +188,117 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
   try {
     const chat = await Chat.findOne({ id: prefixedChatId });
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
 
     const existingUser = chat.users.find((id) => id === user.id);
     if (existingUser) {
       return res.status(400).json({ message: "Already participated" });
     }
     chat.users.push(user.id);
+    const my = await User.findOne({ id: user.id });
+    my.chats.push(chat.id);
 
     await chat.save();
+    await my.save();
 
     req.app.get("io").of("/chat").to(prefixedChatId).emit("participate", {
       user,
     });
 
-    res.status(200).json({ message: "Success" });
+    const responseChat = {
+      id: deletePrefixedId(chat.id),
+      name: chat.name,
+      users: chat.users.map((id) => deletePrefixedId(id)),
+      isPrivate: chat.isPrivate,
+      updatedAt: chat.updatedAt,
+    };
+
+    res.status(200).json(responseChat);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const inviteParticipate = async (req: UserRequest, res: Response) => {
+  const { serverid, authorization } = req.headers;
+  const { chatId, users } = req.body;
+
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+  const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  const prefixedChatId = makePrefixedId(chatId, serverid as string);
+  const prefixedUsers = users.map((id: string) =>
+    makePrefixedId(id, serverid as string)
+  );
+
+  try {
+    const chat = await Chat.findOne({ id: prefixedChatId });
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    const existingUser = chat.users.find((id) => id === user.id);
+    if (!existingUser) {
+      return res.status(400).json({ message: "Not my chat" });
+    }
+
+    const validUsers = await Promise.all(
+      prefixedUsers.map(async (id: string) => {
+        const realUser = await User.findOne({ id });
+        if (!realUser) {
+          return false;
+        }
+        return true;
+      })
+    );
+    const allValid = validUsers.every((valid) => valid);
+    if (!allValid) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const usersFromDb = await User.find({ id: { $in: prefixedUsers } });
+
+    for (let user of usersFromDb) {
+      const existingUser = chat.users.find((id) => id === user.id);
+      if (existingUser) {
+        return res.status(400).json({
+          message: "Already participated user :" + deletePrefixedId(user.id),
+        });
+      }
+    }
+
+    await Promise.all(
+      usersFromDb.map(async (user) => {
+        await user.updateOne({ $push: { chats: chat.id } });
+        await chat.updateOne({ $push: { users: user.id } });
+      })
+    );
+
+    const allUsers = [
+      ...chat.users.map((id) => deletePrefixedId(id)),
+      ...users,
+    ];
+
+    req.app.get("io").of("/chat").to(prefixedChatId).emit("new-user", {
+      users: allUsers,
+    });
+
+    const responseChat = {
+      id: deletePrefixedId(chat.id),
+      name: chat.name,
+      users: allUsers,
+      isPrivate: chat.isPrivate,
+      updatedAt: chat.updatedAt,
+    };
+
+    res.status(200).json(responseChat);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
