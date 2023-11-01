@@ -31,10 +31,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: yarn build
-        working-directory: .
-        run: yarn run build
-
       - name: make zip file
         working-directory: .
         run: zip -r app.zip .env package.json ./dist
