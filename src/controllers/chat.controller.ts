@@ -196,7 +196,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     if (existingUser) {
       return res.status(400).json({ message: "Already participated" });
     }
-    chat.users.push(user.id);
+    await chat.updateOne({ $push: { users: user.id } });
     const my = await User.findOne({ id: user.id });
     my.chats.push(chat.id);
 
@@ -286,7 +286,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       ...users,
     ];
 
-    req.app.get("io").of("/chat").to(prefixedChatId).emit("new-user", {
+    req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
       users: allUsers,
     });
 

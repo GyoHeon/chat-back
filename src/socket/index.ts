@@ -5,7 +5,6 @@ import { Server } from "socket.io";
 import app from "../app";
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
-import { User } from "../models/user.model";
 import { makePrefixedId } from "../utils/makePrefixedId";
 import { verifyToken } from "../utils/verifyToken";
 
@@ -14,9 +13,9 @@ const io = new Server(httpServer, { cors: { origin: "*" } });
 
 app.set("io", io);
 
-const chat = io.of("/chat");
+const chatSocket = io.of("/chat");
 
-chat.use((socket, next) => {
+chatSocket.use((socket, next) => {
   const rawAccessToken = socket.handshake.headers.authorization;
 
   const accessToken = rawAccessToken?.split(" ")[1];
@@ -35,29 +34,48 @@ chat.use((socket, next) => {
   next(null);
 });
 
-chat.on("connection", async (socket) => {
+chatSocket.on("connection", async (socket) => {
   const { chatId } = socket.handshake.query;
   const serverId = socket.handshake.headers.serverid;
   const user = socket.data.user;
 
   if (!(chatId && serverId)) {
-    return;
+    return socket.disconnect();
   }
 
   const prefixedId = makePrefixedId(chatId as string, serverId as string);
 
+  if (!prefixedId) {
+    return socket.disconnect();
+  }
+  socket.join([prefixedId, serverId as string]);
+  console.log(socket.rooms);
+
   const chat = await Chat.findOne({ id: prefixedId });
 
   if (!chat) {
-    return;
+    return socket.disconnect();
   }
 
   const isParticipated = chat.users.some((id) => id === user.id);
   if (!isParticipated) {
-    return;
+    return socket.disconnect();
   }
 
-  socket.on("message", async (message) => {
+  socket.on("fetch-messages", async () => {
+    try {
+      const chat = await Chat.findOne({ id: prefixedId });
+      const messages = chat.messages;
+      if (!messages) {
+        return socket.emit("messages-to-client", { messages: [] });
+      }
+      socket.emit("messages-to-client", { messages });
+    } catch (error) {
+      socket.disconnect();
+    }
+  });
+
+  socket.on("message-to-server", async (message) => {
     const messageId = randomUUID();
     const messageData = new Message({
       id: messageId,
@@ -66,30 +84,26 @@ chat.on("connection", async (socket) => {
       createdAt: new Date(),
     });
 
-    console.log(message, messageData, messageId);
-
     try {
+      const chat = await Chat.findOne({ id: prefixedId });
+
       await chat.updateOne({ $push: { messages: messageData } });
 
-      socket.to(prefixedId).emit("new-message", messageData);
+      chatSocket.to(prefixedId).emit("message-to-client", messageData);
     } catch (error) {
-      console.log(error);
+      socket.disconnect();
     }
   });
 
-  socket.on("join", async () => {});
+  socket.on("join", async () => {
+    socket.to(prefixedId).emit("users", { user });
+  });
+  socket.on("leave", async () => {
+    socket.to(prefixedId).emit("users", { user });
+  });
 });
 
 io.on("connection", async (socket) => {
-  const userData = {
-    userID: socket.id,
-  };
-
-  const user = await User.findOne(({ id: userID }) => userID === socket.id);
-
-  if (user === undefined) {
-  }
-
   // io.emit("users-data", { users });
 
   // message from client
