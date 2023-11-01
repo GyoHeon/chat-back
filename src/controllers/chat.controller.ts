@@ -32,43 +32,14 @@ export const getChat = async (
 
   const my = await User.findOne({ id });
 
-  const chats = my.chats;
+  const originalChats = my.chats;
+
+  const chats = originalChats.map((chatId) => deletePrefixedId(chatId));
 
   if (!chats) {
     return res.status(404).json({ message: "Chat not found" });
-  }
-
-  return res.status(200).json({ chats });
-};
-
-export const getAllChats = async (
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const { serverid } = req.headers;
-
-  try {
-    const chats = await Chat.find({
-      id: { $regex: `^${serverid}:` },
-      isPrivate: false,
-    });
-
-    const pickChats = chats.map((chat) => {
-      const { id, name, users, isPrivate, updatedAt } = chat;
-      const originalId = deletePrefixedId(id);
-      const originalUsers = users.map((user) => deletePrefixedId(user));
-      return {
-        id: originalId,
-        name,
-        users: originalUsers,
-        isPrivate,
-        updatedAt,
-      };
-    });
-    return res.status(200).json({ chats: pickChats });
-  } catch (err) {
-    return res.status(500).json({ err });
+  } else {
+    return res.status(200).json({ chats });
   }
 };
 

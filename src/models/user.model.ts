@@ -5,7 +5,6 @@ import {
   comparePassword,
   comparePasswordFunction,
 } from "../utils/comparePassword";
-import { ChatDocument } from "./chat.model";
 
 export type UserDocument = mongoose.Document & {
   _id: mongoose.Types.ObjectId;
@@ -13,7 +12,7 @@ export type UserDocument = mongoose.Document & {
   password: string;
   name: string;
   picture: string;
-  chats: ChatDocument[];
+  chats: string[];
 
   comparePassword: comparePasswordFunction;
   gravatar: () => string;
