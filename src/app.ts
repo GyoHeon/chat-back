@@ -44,6 +44,7 @@ app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
 app.post("/refresh", authController.postRefresh);
 app.post("/logout", authController.postLogout);
+app.patch("/user", authMiddleware, authController.patchUser);
 
 app.get("/users", authMiddleware, chatController.getUsers);
 app.get("/chat", authMiddleware, chatController.getChat);

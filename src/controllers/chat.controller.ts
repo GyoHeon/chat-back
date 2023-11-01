@@ -17,9 +17,19 @@ export const getUsers = async (
 ) => {
   const { serverid } = req.headers;
 
-  const users = await User.find({ id: { $regex: `^${serverid}:` } });
+  const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
 
-  return res.status(200).json({ users });
+  const users = originalUsers.map((user) => {
+    const { id, name, picture } = user;
+    const originalId = deletePrefixedId(id);
+    return {
+      id: originalId,
+      name,
+      picture,
+    };
+  });
+
+  return res.status(200).json(users);
 };
 
 export const getChat = async (
@@ -56,18 +66,20 @@ export const getAllChats = async (
       isPrivate: false,
     });
 
-    const pickChats = chats.map((chat) => {
-      const { id, name, users, isPrivate, updatedAt } = chat;
-      const originalId = deletePrefixedId(id);
-      const originalUsers = users.map((user) => deletePrefixedId(user));
-      return {
-        id: originalId,
-        name,
-        users: originalUsers,
-        isPrivate,
-        updatedAt,
-      };
-    });
+    const pickChats = chats
+      .map((chat) => {
+        const { id, name, users, isPrivate, updatedAt } = chat;
+        const originalId = deletePrefixedId(id);
+        const originalUsers = users.map((user) => deletePrefixedId(user));
+        return {
+          id: originalId,
+          name,
+          users: originalUsers,
+          isPrivate,
+          updatedAt,
+        };
+      })
+      .filter((chat) => !chat.isPrivate);
     return res.status(200).json({ chats: pickChats });
   } catch (err) {
     return res.status(500).json({ err });
@@ -86,10 +98,10 @@ export const postChat = async (
   const prefixId = makePrefixedId(id, serverid as string);
 
   const user = req.user as UserDocument;
-  const prefixedUses = users.map((id) =>
+  const prefixedUsers = users.map((id: string) =>
     makePrefixedId(id, serverid as string)
   );
-  const allUsers = [...prefixedUses, user.id];
+  const allUsers = [...prefixedUsers, user.id];
 
   const chat = new Chat({
     id: prefixId,
