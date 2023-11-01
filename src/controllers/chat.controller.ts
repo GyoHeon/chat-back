@@ -16,7 +16,16 @@ export const getUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid } = req.headers;
+  const { serverid, authorization } = req.headers;
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
 
   const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
 
@@ -45,6 +54,10 @@ export const getChat = async (
   }
 
   const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
   const id = user.id;
 
   const my = await User.findOne({ id });
@@ -105,6 +118,10 @@ export const postChat = async (
   }
 
   const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
   const { name, users, isPrivate = false } = req.body;
 
   const id = randomUUID();
@@ -163,6 +180,9 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     return res.status(403).json({ message: "Unauthorized" });
   }
   const user = verifyToken(accessToken);
+  if (!user) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
 
   const prefixedChatId = makePrefixedId(chatId, serverid as string);
 
