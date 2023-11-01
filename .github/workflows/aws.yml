@@ -21,7 +21,7 @@ jobs:
           echo ACCESS_TOKEN_SECRET = ${{ env.ACCESS_TOKEN_SECRET }} >> .env
           echo REFRESH_TOKEN_SECRET = ${{ env.REFRESH_TOKEN_SECRET }} >> .env
 
-      - name: Set up Node # action이 구동될 Node 환경을 세팅해준다.
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
@@ -30,7 +30,7 @@ jobs:
         working-directory: .
         run: yarn run build
 
-      - name: make zip file # 압축 파일을 만들어준다.
+      - name: make zip file
         working-directory: .
         run: zip -r app.zip .env package.json ./dist
 
