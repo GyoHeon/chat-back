@@ -3,10 +3,11 @@ import { NextFunction, Request, Response } from "express";
 import { randomUUID } from "node:crypto";
 
 import { Chat } from "../models/chat.model";
-import { User, UserDocument } from "../models/user.model";
+import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
+import { verifyToken } from "../utils/verifyToken";
 
 dotenv.config({ path: ".env" });
 
@@ -37,7 +38,13 @@ export const getChat = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user = req.user as UserDocument;
+  const { authorization } = req.headers;
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  const user = verifyToken(accessToken);
   const id = user.id;
 
   const my = await User.findOne({ id });
@@ -91,13 +98,18 @@ export const postChat = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid } = req.headers;
+  const { serverid, authorization } = req.headers;
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  const user = verifyToken(accessToken);
   const { name, users, isPrivate = false } = req.body;
 
   const id = randomUUID();
   const prefixId = makePrefixedId(id, serverid as string);
 
-  const user = req.user as UserDocument;
   const prefixedUsers = users.map((id: string) =>
     makePrefixedId(id, serverid as string)
   );
@@ -128,15 +140,13 @@ export const postChat = async (
       })
     );
 
-    return res
-      .status(200)
-      .json({
-        id,
-        name,
-        users: originalUsers,
-        isPrivate,
-        updatedAt: chat.updatedAt,
-      });
+    return res.status(200).json({
+      id,
+      name,
+      users: originalUsers,
+      isPrivate,
+      updatedAt: chat.updatedAt,
+    });
   } catch (err) {
     return res
       .status(500)
@@ -145,9 +155,14 @@ export const postChat = async (
 };
 
 export const updateParticipate = async (req: UserRequest, res: Response) => {
-  const { serverid } = req.headers;
+  const { serverid, authorization } = req.headers;
   const { chatId } = req.body;
-  const user = req.user as UserDocument;
+
+  const accessToken = authorization?.split(" ")[1];
+  if (!accessToken) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+  const user = verifyToken(accessToken);
 
   const prefixedChatId = makePrefixedId(chatId, serverid as string);
 
