@@ -32,7 +32,7 @@ jobs:
 
       - name: make zip file # 압축 파일을 만들어준다.
         working-directory: .
-        run: zip -r app.zip package.json ./dist
+        run: zip -r app.zip .env package.json ./dist
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
