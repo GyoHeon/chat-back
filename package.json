@@ -1,6 +1,5 @@
 {
   "name": "chat-back",
-  "packageManager": "yarn@3.6.4",
   "main": "./src/server.ts",
   "scripts": {
     "dev": "nodemon src/server.ts",

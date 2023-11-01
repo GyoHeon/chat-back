@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import compression from "compression"; // compresses requests
 import dotenv from "dotenv";
-import express from "express";
+import express, { Response } from "express";
 import lusca from "lusca";
 import mongoose from "mongoose";
 import { MONGODB_URI } from "./utils/secrets";
@@ -58,6 +58,8 @@ app.patch(
 /**
  * Primary app routes.
  */
+
+app.get("/health", (_, res: Response) => res.status(200).send("OK"));
 
 /**
  * OAuth authentication routes. (Sign in)
