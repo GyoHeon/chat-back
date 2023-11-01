@@ -33,7 +33,7 @@ jobs:
 
       - name: install
         working-directory: .
-        run: npm run install
+        run: npm install
 
       - name: build
         working-directory: .
