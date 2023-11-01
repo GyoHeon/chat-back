@@ -36,7 +36,8 @@ chat.use((socket, next) => {
 });
 
 chat.on("connection", async (socket) => {
-  const { chatId, serverId } = socket.handshake.query;
+  const { chatId } = socket.handshake.query;
+  const serverId = socket.handshake.headers.serverid;
   const user = socket.data.user;
 
   if (!(chatId && serverId)) {

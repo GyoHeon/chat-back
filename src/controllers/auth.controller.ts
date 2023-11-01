@@ -2,12 +2,13 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 import { Token } from "../models/token.model";
-import { User, UserDocument } from "../models/user.model";
+import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { makePrefixedId } from "../utils/makePrefixedId";
+import { verifyToken } from "../utils/verifyToken";
 
 dotenv.config({ path: ".env" });
 
@@ -112,26 +113,27 @@ export const patchUser = async (
     return res.status(403).json({ message: "Unauthorized" });
   }
 
-  let user: UserDocument;
-
   try {
-    verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-      if (err) {
-        console.warn(err);
-      }
-      if (err) {
-        return res.sendStatus(403);
-      }
-      user = data as JwtPayload as UserDocument;
-      next();
-    });
+    const user = verifyToken(accessToken);
+    if (!user) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
 
     const userFromDb = await User.findOne({ id: user.id });
 
     if (!userFromDb) {
       return res.status(403).json({ message: "Unauthorized" });
     } else {
-      userFromDb.updateOne(newData);
+      if (newData.name) {
+        await userFromDb.updateOne({
+          name: newData.name,
+        });
+      }
+      if (newData.picture) {
+        await userFromDb.updateOne({
+          picture: newData.picture,
+        });
+      }
 
       return res.status(200).json({ message: "User updated" });
     }

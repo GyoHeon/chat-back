@@ -18,8 +18,6 @@ export const authMiddleware = (
   verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
       console.warn(err);
-    }
-    if (err) {
       return res.sendStatus(403);
     }
     req.user = user as JwtPayload;

@@ -43,7 +43,9 @@ userSchema.pre("save", function save(next) {
     return next();
   }
   user.chats = [];
-  user.picture = user.gravatar();
+  if (!user.picture) {
+    user.picture = user.gravatar();
+  }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) {
       return next(err);

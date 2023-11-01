@@ -1,5 +1,6 @@
 import bodyParser from "body-parser";
 import compression from "compression"; // compresses requests
+import cors from "cors";
 import dotenv from "dotenv";
 import express, { Response } from "express";
 import lusca from "lusca";
@@ -39,17 +40,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(lusca.xssProtection(true));
+app.use(cors());
 
 app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
 app.post("/refresh", authController.postRefresh);
 app.post("/logout", authController.postLogout);
-app.patch("/user", authMiddleware, authController.patchUser);
+app.patch("/user", authController.patchUser);
 
-app.get("/users", authMiddleware, chatController.getUsers);
-app.get("/chat", authMiddleware, chatController.getChat);
-app.post("/chat", authMiddleware, chatController.postChat);
-app.get("/chat/all", authMiddleware, chatController.getAllChats);
+app.get("/users", chatController.getUsers);
+app.get("/chat", chatController.getChat);
+app.post("/chat", chatController.postChat);
+app.get("/chat/all", chatController.getAllChats);
 app.patch(
   "/chat/participate",
   authMiddleware,
