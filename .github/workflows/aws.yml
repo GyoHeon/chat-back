@@ -31,6 +31,10 @@ jobs:
         with:
           node-version: 18
 
+      - name: build
+        working-directory: .
+        run: npm run build
+
       - name: make zip file
         working-directory: .
         run: zip -r app.zip .env package.json ./dist
