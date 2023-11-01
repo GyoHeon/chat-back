@@ -13,6 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create env file
+        run: |
+          touch .env
+          echo PORT=${{ env.PORT }} >> .env
+          echo MONGO_URL=${{ env.MONGO_URL }} >> .env
+          echo ACCESS_TOKEN_SECRET = ${{ env.ACCESS_TOKEN_SECRET }} >> .env
+          echo REFRESH_TOKEN_SECRET = ${{ env.REFRESH_TOKEN_SECRET }} >> .env
+
       - name: Set up Node # action이 구동될 Node 환경을 세팅해준다.
         uses: actions/setup-node@v3
         with:
