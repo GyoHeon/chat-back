@@ -14,12 +14,19 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create env file
+        env:
+          PORT: ${{ vars.PORT }}
+          ACCESS_TOKEN_SECRET: ${{ vars.ACCESS_TOKEN_SECRET }}
+          REFRESH_TOKEN_SECRET: ${{ vars.REFRESH_TOKEN_SECRET }}
+          MONGO_URL: ${{ secrets.MONGO_URL }}}
         run: |
           touch .env
-          echo PORT=${{ vars.PORT }} >> .env
-          echo MONGO_URL=${{ secrets.MONGO_URL }} >> .env
-          echo ACCESS_TOKEN_SECRET=${{ vars.ACCESS_TOKEN_SECRET }} >> .env
-          echo REFRESH_TOKEN_SECRET=${{ vars.REFRESH_TOKEN_SECRET }} >> .env
+          echo "$MONGO_URL"
+          echo "$PORT"
+          echo MONGO_URL=$MONGO_URL >> .env
+          echo PORT=$PORT >> .env
+          echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET >> .env
+          echo REFRESH_TOKEN_SECRET=REFRESH_TOKEN_SECRET >> .env
 
       - name: Set up Node
         uses: actions/setup-node@v3
