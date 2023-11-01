@@ -103,6 +103,8 @@ export const postChat = async (
   );
   const allUsers = [...prefixedUsers, user.id];
 
+  const originalUsers = allUsers.map((user) => deletePrefixedId(user));
+
   const chat = new Chat({
     id: prefixId,
     name,
@@ -126,7 +128,15 @@ export const postChat = async (
       })
     );
 
-    return res.status(200).json({ chat });
+    return res
+      .status(200)
+      .json({
+        id,
+        name,
+        users: originalUsers,
+        isPrivate,
+        updatedAt: chat.updatedAt,
+      });
   } catch (err) {
     return res
       .status(500)
