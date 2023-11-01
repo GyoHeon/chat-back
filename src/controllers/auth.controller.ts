@@ -81,14 +81,14 @@ export const postRefresh = async (
 
     const user = await User.findOne({ id });
     if (!user) {
-      return res.status(403);
+      return res.status(403).json({ message: "Unauthorized" });
     }
     const accessToken = sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "7d",
     });
     return res.json({ accessToken });
   } catch (err) {
-    return res.status(403);
+    return res.status(403).json({ message: "Unauthorized" });
   }
 };
 
