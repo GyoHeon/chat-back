@@ -17,7 +17,7 @@ jobs:
         run: |
           touch .env
           echo PORT=${{ vars.PORT }} >> .env
-          echo MONGO_URL=${{ vars.MONGO_URL }} >> .env
+          echo MONGO_URL=${{ secrets.MONGO_URL }} >> .env
           echo ACCESS_TOKEN_SECRET=${{ vars.ACCESS_TOKEN_SECRET }} >> .env
           echo REFRESH_TOKEN_SECRET=${{ vars.REFRESH_TOKEN_SECRET }} >> .env
 
