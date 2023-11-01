@@ -23,6 +23,7 @@ jobs:
           touch .env
           echo "$MONGO_URL"
           echo "$PORT"
+          echo "$ACCESS_TOKEN_SECRET"
           echo MONGO_URL=$MONGO_URL >> .env
           echo PORT=$PORT >> .env
           echo ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET >> .env
