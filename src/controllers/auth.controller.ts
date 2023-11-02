@@ -8,7 +8,6 @@ import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { makePrefixedId } from "../utils/makePrefixedId";
-import { verifyToken } from "../utils/verifyToken";
 
 dotenv.config({ path: ".env" });
 
@@ -106,19 +105,10 @@ export const patchUser = async (
     [name && "name"]: name,
     [picture && "picture"]: picture,
   };
-  const { authorization } = req.headers;
-  const accessToken = authorization?.split(" ")[1];
 
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   try {
-    const user = verifyToken(accessToken);
-    if (!user) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
     const userFromDb = await User.findOne({ id: user.id });
 
     if (!userFromDb) {
@@ -196,9 +186,3 @@ export const postLogin = async (
     return res.status(401).json({ message: "Invalid id or password" });
   }
 };
-
-export const postLogout = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
