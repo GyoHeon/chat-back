@@ -86,6 +86,10 @@ export const getAllChats = async (
       isPrivate: false,
     });
 
+    if (!chats) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
     const pickChats = chats
       .map((chat) => {
         const { id, name, users, isPrivate, updatedAt } = chat;
