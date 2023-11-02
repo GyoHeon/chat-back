@@ -7,7 +7,6 @@ import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
-import { verifyToken } from "../utils/verifyToken";
 
 dotenv.config({ path: ".env" });
 
@@ -16,16 +15,8 @@ export const getUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid, authorization } = req.headers;
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const { serverid } = req.headers;
 
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
   try {
     const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
 
@@ -51,7 +42,6 @@ export const getChat = async (
   next: NextFunction
 ) => {
   const user = req.user;
-
   const id = user.id;
 
   try {
@@ -113,16 +103,9 @@ export const postChat = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid, authorization } = req.headers;
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const { serverid } = req.headers;
 
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   const { name, users, isPrivate = false } = req.body;
 
@@ -182,17 +165,10 @@ export const postChat = async (
 };
 
 export const updateParticipate = async (req: UserRequest, res: Response) => {
-  const { serverid, authorization } = req.headers;
+  const { serverid } = req.headers;
   const { chatId } = req.body;
 
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   const prefixedChatId = makePrefixedId(chatId, serverid as string);
 
@@ -237,18 +213,12 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 export const inviteParticipate = async (req: UserRequest, res: Response) => {
-  const { serverid, authorization } = req.headers;
+  const { serverid } = req.headers;
   const { chatId, users } = req.body;
 
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   const prefixedChatId = makePrefixedId(chatId, serverid as string);
   const prefixedUsers = users.map((id: string) =>
@@ -322,17 +292,10 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
 };
 
 export const leaveChat = async (req: UserRequest, res: Response) => {
-  const { serverid, authorization } = req.headers;
+  const { serverid } = req.headers;
   const { chatId } = req.body;
 
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   const prefixedChatId = makePrefixedId(chatId, serverid as string);
 

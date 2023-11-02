@@ -49,13 +49,17 @@ app.post("/logout", authController.postLogout);
 app.patch("/user", authController.patchUser);
 
 // Chat routes.
-app.get("/users", chatController.getUsers);
+app.get("/users", authMiddleware, chatController.getUsers);
 app.get("/chat", authMiddleware, chatController.getChat);
-app.post("/chat", chatController.postChat);
+app.post("/chat", authMiddleware, chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
-app.patch("/chat/participate", chatController.updateParticipate);
-app.patch("/chat/invite", chatController.inviteParticipate);
-app.patch("/chat/leave", chatController.leaveChat);
+app.patch(
+  "/chat/participate",
+  authMiddleware,
+  chatController.updateParticipate
+);
+app.patch("/chat/invite", authMiddleware, chatController.inviteParticipate);
+app.patch("/chat/leave", authMiddleware, chatController.leaveChat);
 
 app.get("/health", (_, res: Response) =>
   res.status(200).send("Health check OK")
