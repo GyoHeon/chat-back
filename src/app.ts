@@ -20,6 +20,8 @@ const app = express();
 // Connect to MongoDB
 const mongoUrl = MONGODB_URI;
 
+console.log(mongoUrl);
+
 mongoose
   .connect(mongoUrl)
   .then(() => {
