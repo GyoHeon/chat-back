@@ -7,10 +7,10 @@ import lusca from "lusca";
 import mongoose from "mongoose";
 import { MONGODB_URI } from "./utils/secrets";
 
+// Controllers (route handlers)
 import * as authController from "./controllers/auth.controller";
 import * as chatController from "./controllers/chat.controller";
-
-// Controllers (route handlers)
+import { authMiddleware } from "./middleware/auth";
 
 dotenv.config({ path: ".env" });
 
@@ -19,8 +19,6 @@ const app = express();
 
 // Connect to MongoDB
 const mongoUrl = MONGODB_URI;
-
-console.log(mongoUrl);
 
 mongoose
   .connect(mongoUrl)
@@ -43,30 +41,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(lusca.xssProtection(true));
 app.use(cors());
 
+// Auth routes. (Sign in)
 app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
 app.post("/refresh", authController.postRefresh);
 app.post("/logout", authController.postLogout);
 app.patch("/user", authController.patchUser);
 
+// Chat routes.
 app.get("/users", chatController.getUsers);
-app.get("/chat", chatController.getChat);
+app.get("/chat", authMiddleware, chatController.getChat);
 app.post("/chat", chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
 app.patch("/chat/participate", chatController.updateParticipate);
 app.patch("/chat/invite", chatController.inviteParticipate);
 app.patch("/chat/leave", chatController.leaveChat);
 
-/**
- * Primary app routes.
- */
-
 app.get("/health", (_, res: Response) =>
   res.status(200).send("Health check OK")
 );
-
-/**
- * OAuth authentication routes. (Sign in)
- */
 
 export default app;

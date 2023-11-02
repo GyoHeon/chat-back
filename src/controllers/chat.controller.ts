@@ -50,16 +50,7 @@ export const getChat = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { authorization } = req.headers;
-  const accessToken = authorization?.split(" ")[1];
-  if (!accessToken) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-
-  const user = verifyToken(accessToken);
-  if (!user) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
+  const user = req.user;
 
   const id = user.id;
 

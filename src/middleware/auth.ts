@@ -6,6 +6,11 @@ import { UserRequest } from "../type/express";
 
 dotenv.config({ path: ".env" });
 
+interface IUser {
+  id: string;
+  exp: number;
+}
+
 export const authMiddleware = (
   req: UserRequest,
   res: Response,
@@ -13,14 +18,23 @@ export const authMiddleware = (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
+  if (!token) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
 
-  verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      console.warn(err);
-      return res.sendStatus(403);
+  try {
+    verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user: IUser) => {
+      if (user?.id) {
+        req.user = user as JwtPayload as IUser;
+      }
+    });
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Invalid token" });
+    } else {
+      return next();
     }
-    req.user = user as JwtPayload;
-    next();
-  });
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
