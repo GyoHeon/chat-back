@@ -63,16 +63,20 @@ export const getChat = async (
 
   const id = user.id;
 
-  const my = await User.findOne({ id });
+  try {
+    const my = await User.findOne({ id });
 
-  const originalChats = my.chats;
+    const originalChats = my.chats;
 
-  const chats = originalChats.map((chatId) => deletePrefixedId(chatId));
+    const chats = originalChats.map((chatId) => deletePrefixedId(chatId));
 
-  if (!chats) {
-    return res.status(404).json({ message: "Chat not found" });
-  } else {
-    return res.status(200).json({ chats });
+    if (!chats) {
+      return res.status(404).json({ message: "Chat not found" });
+    } else {
+      return res.status(200).json({ chats });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
