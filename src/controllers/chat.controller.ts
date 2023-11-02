@@ -26,20 +26,23 @@ export const getUsers = async (
   if (!user) {
     return res.status(403).json({ message: "Unauthorized" });
   }
+  try {
+    const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
 
-  const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
+    const users = originalUsers.map((user) => {
+      const { id, name, picture } = user;
+      const originalId = deletePrefixedId(id);
+      return {
+        id: originalId,
+        name,
+        picture,
+      };
+    });
 
-  const users = originalUsers.map((user) => {
-    const { id, name, picture } = user;
-    const originalId = deletePrefixedId(id);
-    return {
-      id: originalId,
-      name,
-      picture,
-    };
-  });
-
-  return res.status(200).json(users);
+    return res.status(200).json(users);
+  } catch (err) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const getChat = async (
