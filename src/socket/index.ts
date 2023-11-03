@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import app from "../app";
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
-import { deletePrefixedId } from "../utils/deletePrefixedId";
+import { deletePrefixedId, deletePrefixedIds } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 import { verifyToken } from "../utils/verifyToken";
 
@@ -44,14 +44,14 @@ chatSocket.on("connection", async (socket) => {
     return socket.disconnect();
   }
 
-  const prefixedId = makePrefixedId(chatId as string, serverId as string);
+  const prefixedChatId = makePrefixedId(chatId as string, serverId as string);
 
-  if (!prefixedId) {
+  if (!prefixedChatId) {
     return socket.disconnect();
   }
-  socket.join([prefixedId, serverId as string]);
+  socket.join([prefixedChatId, serverId as string]);
 
-  const chat = await Chat.findOne({ id: prefixedId });
+  const chat = await Chat.findOne({ id: prefixedChatId });
 
   if (!chat) {
     return socket.disconnect();
@@ -64,7 +64,7 @@ chatSocket.on("connection", async (socket) => {
 
   socket.on("fetch-messages", async () => {
     try {
-      const chat = await Chat.findOne({ id: prefixedId });
+      const chat = await Chat.findOne({ id: prefixedChatId });
       const messages = chat.messages.reverse();
       if (!messages) {
         return socket.emit("messages-to-client", { messages: [] });
@@ -90,13 +90,41 @@ chatSocket.on("connection", async (socket) => {
     });
 
     try {
-      const chat = await Chat.findOne({ id: prefixedId });
+      const chat = await Chat.findOne({ id: prefixedChatId });
 
       await chat.updateOne({ $push: { messages: messageData } });
 
-      chatSocket.to(prefixedId).emit("message-to-client", responseMessage);
+      chatSocket.to(prefixedChatId).emit("message-to-client", responseMessage);
     } catch (error) {
       socket.disconnect();
     }
+  });
+
+  let users = [];
+  for (const [_, user] of chatSocket.sockets) {
+    users.push(user.data.user.id);
+  }
+
+  const responseUser = deletePrefixedIds(users);
+
+  chatSocket
+    .to(prefixedChatId)
+    .emit("users-to-client", { users: responseUser });
+
+  socket.on("users", async () => {
+    const responseUser = deletePrefixedIds(users);
+
+    chatSocket
+      .to(prefixedChatId)
+      .emit("users-to-client", { users: responseUser });
+  });
+
+  socket.on("disconnect", () => {
+    users = users.filter((id) => id !== user.id);
+    const responseUser = deletePrefixedIds(users);
+
+    chatSocket
+      .to(prefixedChatId)
+      .emit("users-to-client", { users: responseUser });
   });
 });
