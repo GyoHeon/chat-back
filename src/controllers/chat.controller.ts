@@ -165,8 +165,6 @@ export const postChat = async (
 
   const responseUsers = await chatWithUser(allUsers);
 
-  const originalUsers = allUsers.map((user) => deletePrefixedId(user));
-
   const chat = new Chat({
     id: prefixId,
     name,
@@ -232,10 +230,8 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     }
     await chat.updateOne({ $push: { users: user.id } });
     const my = await User.findOne({ id: user.id });
-    my.chats.push(chat.id);
 
-    await chat.save();
-    await my.save();
+    await my.updateOne({ $push: { chats: chat.id } });
 
     const allUsers = [user.id, ...chat.users].map((id) => deletePrefixedId(id));
     const responseUsers = await chatWithUser([user.id, ...chat.users]);
