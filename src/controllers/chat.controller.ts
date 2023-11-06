@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Chat } from "../models/chat.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
+import { chatWithUser } from "../utils/chatWithUser";
 import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 
@@ -47,14 +48,41 @@ export const getChat = async (
   try {
     const my = await User.findOne({ id });
 
-    const originalChats = my.chats;
+    const originalChats = await Promise.all(
+      my.chats.map(async (chatId) => await Chat.findOne({ id: chatId }))
+    );
 
-    const chats = originalChats.map((chatId) => deletePrefixedId(chatId));
+    const responseChats = await Promise.all(
+      originalChats.map(async (chat) => {
+        const { id, name, users, isPrivate, updatedAt, messages } = chat;
+        const responseUsers = await chatWithUser(users);
+        const latestMessage = messages[messages.length - 1];
+        const responseLatestMessage = latestMessage
+          ? {
+              id: latestMessage.id,
+              text: latestMessage.text,
+              createdAt: latestMessage.createdAt,
+              userId: deletePrefixedId(latestMessage.userId),
+            }
+          : null;
 
-    if (!chats) {
+        const responseChat = {
+          id: deletePrefixedId(id),
+          name,
+          users: responseUsers,
+          isPrivate,
+          updatedAt,
+          latestMessage: responseLatestMessage,
+        };
+
+        return responseChat;
+      })
+    );
+
+    if (!responseChats) {
       return res.status(404).json({ message: "Chat not found" });
     } else {
-      return res.status(200).json({ chats });
+      return res.status(200).json({ chats: responseChats });
     }
   } catch (err) {
     return res.status(500).json({ message: "Internal Server Error" });
@@ -79,20 +107,38 @@ export const getAllChats = async (
     }
 
     const pickChats = chats
-      .map((chat) => {
-        const { id, name, users, isPrivate, updatedAt } = chat;
+      .map(async (chat) => {
+        const { id, name, users, isPrivate, updatedAt, messages } = chat;
         const originalId = deletePrefixedId(id);
-        const originalUsers = users.map((user) => deletePrefixedId(user));
+
+        const originalUsers = await chatWithUser(users);
+
+        const latestMessage = messages[messages.length - 1];
+        const responseLatestMessage = latestMessage
+          ? {
+              id: latestMessage.id,
+              text: latestMessage.text,
+              createdAt: latestMessage.createdAt,
+              userId: deletePrefixedId(latestMessage.userId),
+            }
+          : null;
+
         return {
           id: originalId,
           name,
           users: originalUsers,
           isPrivate,
           updatedAt,
+          latestMessage: responseLatestMessage,
         };
       })
-      .filter((chat) => !chat.isPrivate);
-    return res.status(200).json({ chats: pickChats });
+      .filter(async (chat) => {
+        const { isPrivate } = await chat;
+        return !isPrivate;
+      });
+
+    const responseChats = await Promise.all(pickChats);
+    return res.status(200).json({ chats: responseChats });
   } catch (err) {
     return res.status(500).json({ err });
   }
@@ -116,6 +162,8 @@ export const postChat = async (
     makePrefixedId(id, serverid as string)
   );
   const allUsers = [...prefixedUsers, user.id];
+
+  const responseUsers = await chatWithUser(allUsers);
 
   const originalUsers = allUsers.map((user) => deletePrefixedId(user));
 
@@ -145,7 +193,7 @@ export const postChat = async (
     const responseChat = {
       id: deletePrefixedId(chat.id),
       name: chat.name,
-      users: originalUsers,
+      users: responseUsers,
       isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
     };
@@ -190,6 +238,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     await my.save();
 
     const allUsers = [user.id, ...chat.users].map((id) => deletePrefixedId(id));
+    const responseUsers = await chatWithUser([user.id, ...chat.users]);
 
     req.app
       .get("io")
@@ -203,7 +252,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
     const responseChat = {
       id: deletePrefixedId(chat.id),
       name: chat.name,
-      users: allUsers,
+      users: responseUsers,
       isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
     };
@@ -255,7 +304,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       const existingUser = chat.users.find((id) => id === user.id);
       if (existingUser) {
         return res.status(400).json({
-          message: "Already participated user :" + deletePrefixedId(user.id),
+          message: "Already participated user: " + deletePrefixedId(user.id),
         });
       }
     }
@@ -267,15 +316,14 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       })
     );
 
-    const allUsers = [
-      ...chat.users.map((id) => deletePrefixedId(id)),
-      ...users,
-    ];
+    const allUsers = [...chat.users, ...prefixedUsers];
+
+    const responseUsers = await chatWithUser(allUsers);
 
     const responseChat = {
       id: deletePrefixedId(chat.id),
       name: chat.name,
-      users: allUsers,
+      users: responseUsers,
       isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
     };
