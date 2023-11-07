@@ -32,7 +32,8 @@ export const getUsers = async (
     });
 
     return res.status(200).json(users);
-  } catch (err) {
+  } catch (error) {
+    console.warn(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -84,7 +85,8 @@ export const getChat = async (
     } else {
       return res.status(200).json({ chats: responseChats });
     }
-  } catch (err) {
+  } catch (error) {
+    console.warn(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -155,6 +157,12 @@ export const postChat = async (
 
   const { name, users, isPrivate = false } = req.body;
 
+  for (let userId of users) {
+    if (typeof userId !== "string") {
+      return res.status(400).json({ message: "User id must be string" });
+    }
+  }
+
   const id = randomUUID();
   const prefixId = makePrefixedId(id, serverid as string);
 
@@ -203,7 +211,8 @@ export const postChat = async (
     }
 
     return res.status(200).json(responseChat);
-  } catch (err) {
+  } catch (error) {
+    console.warn(error);
     return res
       .status(500)
       .json({ message: "Internal Server Error with chat creation" });
@@ -255,6 +264,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
     res.status(200).json(responseChat);
   } catch (error) {
+    console.warn(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -331,6 +341,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
 
     res.status(200).json(responseChat);
   } catch (error) {
+    console.warn(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -376,6 +387,7 @@ export const leaveChat = async (req: UserRequest, res: Response) => {
 
     res.status(200).json({ message: "Leave success" });
   } catch (error) {
+    console.warn(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

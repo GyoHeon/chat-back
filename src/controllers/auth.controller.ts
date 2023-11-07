@@ -60,6 +60,7 @@ export const postSignup = async (
 
     return res.status(200).json({ message: "User created" });
   } catch (err) {
+    console.warn(err);
     return res.status(401).json({ message: "Invalid id or password" });
   }
 };
@@ -88,6 +89,7 @@ export const postRefresh = async (
     });
     return res.json({ accessToken });
   } catch (err) {
+    console.warn(err);
     return res.status(403).json({ message: "Unauthorized" });
   }
 };
@@ -128,6 +130,7 @@ export const patchUser = async (
       return res.status(200).json({ message: "User updated" });
     }
   } catch (err) {
+    console.warn(err);
     return res.status(403).json({ message: "Unauthorized" });
   }
 };
@@ -183,6 +186,7 @@ export const postLogin = async (
 
     return res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
+    console.warn(err);
     return res.status(401).json({ message: "Invalid id or password" });
   }
 };
