@@ -1,13 +1,11 @@
 import { randomUUID } from "node:crypto";
 
-import { io } from ".";
+import { chatSocket } from ".";
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
 import { deletePrefixedId, deletePrefixedIds } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 import { verifyToken } from "../utils/verifyToken";
-
-const chatSocket = io.of("/chat");
 
 chatSocket.use((socket, next) => {
   const rawAccessToken = socket.handshake.headers.authorization;
@@ -44,6 +42,8 @@ chatSocket.on("connection", async (socket) => {
   }
   socket.join([prefixedChatId]);
 
+  console.log(prefixedChatId);
+
   const chat = await Chat.findOne({ id: prefixedChatId });
 
   if (!chat) {
@@ -69,6 +69,7 @@ chatSocket.on("connection", async (socket) => {
   });
 
   socket.on("message-to-server", async (message) => {
+    console.log(message);
     const messageId = randomUUID();
     const responseMessage = {
       id: messageId,
