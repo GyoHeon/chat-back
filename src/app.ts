@@ -44,6 +44,7 @@ app.use(cors());
 // Auth routes. (Sign in)
 app.post("/login", authController.postLogin);
 app.post("/signup", authController.postSignup);
+app.post("/check/id", authController.postCheckDuplicateId);
 app.post("/refresh", authController.postRefresh);
 app.patch("/user", authMiddleware, authController.patchUser);
 app.get("/user", authMiddleware, authController.getUser);

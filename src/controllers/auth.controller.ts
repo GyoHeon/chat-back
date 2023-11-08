@@ -69,6 +69,45 @@ export const postSignup = async (
   }
 };
 
+export const postCheckDuplicateId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await check("id", "Id cannot be blank").notEmpty().run(req);
+    await check("id", "Id only alphabetic and numbers")
+      .matches(/^[a-zA-Z0-9]+$/)
+      .run(req);
+    await check("serverid", "ServerId cannot be blank").notEmpty().run(req);
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(401).json({ message: errors });
+    }
+
+    const { id } = req.body;
+    const { serverid } = req.headers;
+
+    const prefixedId = makePrefixedId(id, serverid as string);
+
+    try {
+      const existingUser = await User.findOne({ id: prefixedId });
+
+      if (existingUser) {
+        return res.status(200).json({ isDuplicated: true });
+      }
+      return res.status(200).json({ isDuplicated: false });
+    } catch (err) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  } catch (err) {
+    console.warn(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const postRefresh = async (
   req: Request,
   res: Response,
