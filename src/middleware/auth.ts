@@ -6,7 +6,7 @@ import { UserRequest } from "../type/express";
 
 dotenv.config({ path: ".env" });
 
-interface IUser {
+export interface IUser {
   id: string;
   exp: number;
 }

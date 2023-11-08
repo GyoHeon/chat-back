@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
+import { JwtPayload } from "jsonwebtoken";
+
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import { sign, verify } from "jsonwebtoken";
 
+import { IUser } from "src/middleware/auth";
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
@@ -169,6 +172,34 @@ export const getUser = async (
   } catch (err) {
     console.warn(err);
     return res.status(403).json({ message: "Unauthorized" });
+  }
+};
+
+export const authMe = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { authorization } = req.headers;
+  const token = authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(400).json({ auth: false });
+  }
+
+  try {
+    verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user: IUser) => {
+      if (user?.id) {
+        req.user = user as JwtPayload as IUser;
+      }
+    });
+
+    if (!req.user) {
+      return res.status(400).json({ auth: false });
+    } else {
+      return res.status(200).json({ auth: true });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
