@@ -7,6 +7,7 @@ import { sign, verify } from "jsonwebtoken";
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
+import { deletePrefixedId } from "../utils/deletePrefixedId";
 import { makePrefixedId } from "../utils/makePrefixedId";
 
 dotenv.config({ path: ".env" });
@@ -140,7 +141,7 @@ export const getUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.params;
+  const id = req.query.userId as string;
   const serverId = req.headers.serverid as string;
   if (!id && typeof id !== "string") {
     return res.status(400).json({ message: "Invalid id" });
@@ -159,7 +160,7 @@ export const getUser = async (
     }
 
     const responseUser = {
-      id: userFromDb.id,
+      id: deletePrefixedId(userFromDb.id),
       name: userFromDb.name,
       picture: userFromDb.picture,
     };
