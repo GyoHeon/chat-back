@@ -123,6 +123,11 @@ export const postRefresh = async (
     const decoded = verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const { id } = decoded as { id: string };
 
+    const existingToken = await Token.findOne({ userId: id });
+    if (!existingToken) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
     const user = await User.findOne({ id });
     if (!user) {
       return res.status(403).json({ message: "Unauthorized" });
