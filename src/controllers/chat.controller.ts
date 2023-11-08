@@ -376,6 +376,11 @@ export const leaveChat = async (req: UserRequest, res: Response) => {
       .filter((id) => id !== user.id)
       .map((id) => deletePrefixedId(id));
 
+    if (allUsers.length === 0) {
+      await chat.deleteOne();
+      return res.status(200).json({ message: "Chat deleted" });
+    }
+
     req.app
       .get("io")
       .of("/chat")
