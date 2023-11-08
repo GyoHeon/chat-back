@@ -235,7 +235,24 @@ export const authMe = async (
     if (!req.user) {
       return res.status(400).json({ auth: false });
     } else {
-      return res.status(200).json({ auth: true });
+      try {
+        const userFromDb = await User.findOne({ id: req.user.id });
+
+        if (!userFromDb) {
+          return res.status(400).json({ auth: false });
+        }
+
+        const responseUser = {
+          id: deletePrefixedId(req.user.id),
+          name: userFromDb.name,
+          picture: userFromDb.picture,
+        };
+
+        return res.status(200).json({ auth: true, user: responseUser });
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
     }
   } catch (err) {
     return res.status(500).json({ message: "Internal server error" });
