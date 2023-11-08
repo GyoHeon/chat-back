@@ -135,6 +135,42 @@ export const patchUser = async (
   }
 };
 
+export const getUser = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const serverId = req.headers.serverid as string;
+  if (!id && typeof id !== "string") {
+    return res.status(400).json({ message: "Invalid id" });
+  }
+
+  const prefixedId = makePrefixedId(id, serverId);
+  if (!prefixedId) {
+    return res.status(400).json({ message: "Invalid serverId" });
+  }
+
+  try {
+    const userFromDb = await User.findOne({ id: prefixedId });
+
+    if (!userFromDb) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const responseUser = {
+      id: userFromDb.id,
+      name: userFromDb.name,
+      picture: userFromDb.picture,
+    };
+
+    return res.status(200).json({ user: responseUser });
+  } catch (err) {
+    console.warn(err);
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+};
+
 export const postLogin = async (
   req: UserRequest,
   res: Response,
