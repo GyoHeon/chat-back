@@ -42,7 +42,6 @@ chatSocket.on("connection", async (socket) => {
   }
   socket.join([prefixedChatId]);
 
-  console.log(prefixedChatId);
 
   const chat = await Chat.findOne({ id: prefixedChatId });
 
@@ -69,7 +68,6 @@ chatSocket.on("connection", async (socket) => {
   });
 
   socket.on("message-to-server", async (message) => {
-    console.log(message);
     const messageId = randomUUID();
     const responseMessage = {
       id: messageId,

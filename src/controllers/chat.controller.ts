@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { randomUUID } from "node:crypto";
 
-import { Chat } from "../models/chat.model";
+import { Chat, ChatDocument } from "../models/chat.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { chatWithUser } from "../utils/chatWithUser";
@@ -53,8 +53,10 @@ export const getChat = async (
       my.chats.map(async (chatId) => await Chat.findOne({ id: chatId }))
     );
 
+    const chats: ChatDocument[] = originalChats.filter((chat) => chat !== null);
+
     const responseChats = await Promise.all(
-      originalChats.map(async (chat) => {
+      chats.map(async (chat) => {
         const { id, name, users, isPrivate, updatedAt, messages } = chat;
         const responseUsers = await chatWithUser(users);
         const latestMessage = messages[messages.length - 1];
