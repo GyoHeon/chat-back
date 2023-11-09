@@ -39,7 +39,6 @@ serverSocket.use((socket, next) => {
 
 serverSocket.on("connection", async (socket) => {
   const serverId = socket.handshake.headers.serverid as string;
-  const user = socket.data.user;
 
   if (!serverId) {
     return socket.disconnect();
@@ -47,11 +46,10 @@ serverSocket.on("connection", async (socket) => {
 
   socket.join([serverId]);
 
-  let users = [];
-  for (const [_, user] of serverSocket.sockets) {
+  const users = [];
+  for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
     users.push(user.data.user.id);
   }
-
   const responseUser = deletePrefixedIds(users);
 
   serverSocket
@@ -59,6 +57,10 @@ serverSocket.on("connection", async (socket) => {
     .emit("users-server-to-client", { users: responseUser });
 
   socket.on("users-server", async () => {
+    const users = [];
+    for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
+      users.push(user.data.user.id);
+    }
     const responseUser = deletePrefixedIds(users);
 
     serverSocket
@@ -67,7 +69,11 @@ serverSocket.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
-    users = users.filter((id) => id !== user.id);
+    const users = [];
+    for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
+      users.push(user.data.user.id);
+    }
+
     const responseUser = deletePrefixedIds(users);
 
     serverSocket
