@@ -36,7 +36,7 @@ export const postSignup = async (
     return res.status(401).json({ message: errors });
   }
 
-  const { id, password, name } = req.body;
+  const { id, password, name, picture } = req.body;
   const { serverid } = req.headers;
 
   const prefixedId = makePrefixedId(id, serverid as string);
@@ -58,6 +58,7 @@ export const postSignup = async (
       id: prefixedId,
       name,
       password,
+      picture,
     });
 
     await user.save();
