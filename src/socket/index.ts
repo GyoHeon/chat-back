@@ -47,8 +47,12 @@ serverSocket.on("connection", async (socket) => {
   socket.join([serverId]);
 
   const users = [];
-  for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
-    users.push(user.data.user.id);
+  for (const socketId of serverSocket.adapter.rooms.get(serverId)) {
+    const user = serverSocket.sockets.get(socketId);
+    const isUnique = users.every((id) => id !== user.data.user.id);
+    if (isUnique) {
+      users.push(user.data.user.id);
+    }
   }
   const responseUser = deletePrefixedIds(users);
 
@@ -58,8 +62,12 @@ serverSocket.on("connection", async (socket) => {
 
   socket.on("users-server", async () => {
     const users = [];
-    for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
-      users.push(user.data.user.id);
+    for (const socketId of serverSocket.adapter.rooms.get(serverId)) {
+      const user = serverSocket.sockets.get(socketId);
+      const isUnique = users.every((id) => id !== user.data.user.id);
+      if (isUnique) {
+        users.push(user.data.user.id);
+      }
     }
     const responseUser = deletePrefixedIds(users);
 
@@ -70,8 +78,12 @@ serverSocket.on("connection", async (socket) => {
 
   socket.on("disconnect", () => {
     const users = [];
-    for (const [_, user] of serverSocket.adapter.rooms[serverId].sockets) {
-      users.push(user.data.user.id);
+    for (const socketId of serverSocket.adapter.rooms.get(serverId)) {
+      const user = serverSocket.sockets.get(socketId);
+      const isUnique = users.every((id) => id !== user.data.user.id);
+      if (isUnique) {
+        users.push(user.data.user.id);
+      }
     }
 
     const responseUser = deletePrefixedIds(users);
