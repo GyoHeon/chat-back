@@ -44,9 +44,10 @@ serverSocket.on("connection", async (socket) => {
     return socket.disconnect();
   }
 
-  socket.join([serverId]);
+  await socket.join([serverId]);
 
   const users = [];
+
   for (const socketId of serverSocket.adapter.rooms.get(serverId)) {
     const user = serverSocket.sockets.get(socketId);
     const isUnique = users.every((id) => id !== user.data.user.id);
@@ -54,6 +55,7 @@ serverSocket.on("connection", async (socket) => {
       users.push(user.data.user.id);
     }
   }
+
   const responseUser = deletePrefixedIds(users);
 
   serverSocket
@@ -77,6 +79,9 @@ serverSocket.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
+    if (!serverSocket.adapter.rooms.get(serverId)) {
+      return;
+    }
     const users = [];
     for (const socketId of serverSocket.adapter.rooms.get(serverId)) {
       const user = serverSocket.sockets.get(socketId);
