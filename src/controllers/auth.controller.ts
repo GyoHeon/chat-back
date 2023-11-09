@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import { sign, verify } from "jsonwebtoken";
 
-import { IUser } from "src/middleware/auth";
+import { IUser } from "../middleware/auth";
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
