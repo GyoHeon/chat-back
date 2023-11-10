@@ -4,8 +4,11 @@ import { Server } from "socket.io";
 
 import { Chat } from "../models/chat.model";
 import { Message } from "../models/message.model";
-import { deletePrefixedId, deletePrefixedIds } from "../utils/deletePrefixedId";
-import { makePrefixedId } from "../utils/makePrefixedId";
+import {
+  deletePrefixedId,
+  deletePrefixedIds,
+  makePrefixedId,
+} from "../utils/prefix";
 import { verifyToken } from "../utils/verifyToken";
 
 import app from "../app";

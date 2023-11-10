@@ -6,8 +6,11 @@ import { Chat, ChatDocument } from "../models/chat.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
 import { chatWithUser } from "../utils/chatWithUser";
-import { deletePrefixedId } from "../utils/deletePrefixedId";
-import { makePrefixedId } from "../utils/makePrefixedId";
+import {
+  deletePrefixedId,
+  extractPrefixId,
+  makePrefixedId,
+} from "../utils/prefix";
 
 dotenv.config({ path: ".env" });
 
@@ -16,10 +19,10 @@ export const getUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid } = req.headers;
+  const serverId = req.headers.serverid as string;
 
   try {
-    const originalUsers = await User.find({ id: { $regex: `^${serverid}:` } });
+    const originalUsers = await User.find({ id: { $regex: `^${serverId}:` } });
 
     const users = originalUsers.map((user) => {
       const { id, name, picture } = user;
@@ -43,14 +46,21 @@ export const getChat = async (
   res: Response,
   next: NextFunction
 ) => {
+  const serverId = req.headers.serverid as string;
   const user = req.user;
   const id = user.id;
 
   try {
     const my = await User.findOne({ id });
 
+    const sameIdChats = my.chats.filter(
+      (chatId) => extractPrefixId(chatId) === serverId
+    );
+
     const originalChats = await Promise.all(
-      my.chats.map(async (chatId) => await Chat.findOne({ id: chatId }))
+      sameIdChats.map(async (chatId) => {
+        return await Chat.findOne({ id: chatId });
+      })
     );
 
     const chats: ChatDocument[] = originalChats.filter((chat) => chat !== null);
@@ -153,7 +163,10 @@ export const postChat = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { serverid } = req.headers;
+  const serverId = req.headers.serverid as string;
+  if (!serverId) {
+    return res.status(400).json({ message: "Server id is required" });
+  }
 
   const user = req.user;
 
@@ -166,10 +179,10 @@ export const postChat = async (
   }
 
   const id = randomUUID();
-  const prefixId = makePrefixedId(id, serverid as string);
+  const prefixId = makePrefixedId(id, serverId as string);
 
   const prefixedUsers = users.map((id: string) =>
-    makePrefixedId(id, serverid as string)
+    makePrefixedId(id, serverId as string)
   );
   const allUsers = [...prefixedUsers, user.id];
 
@@ -207,7 +220,7 @@ export const postChat = async (
     };
 
     if (!chat.isPrivate) {
-      req.app.get("io").of("/chat").to(serverid).emit("new-chat", {
+      req.app.get("io").of("/chat").to(serverId).emit("new-chat", {
         responseChat,
       });
     }
@@ -222,12 +235,15 @@ export const postChat = async (
 };
 
 export const updateParticipate = async (req: UserRequest, res: Response) => {
-  const { serverid } = req.headers;
+  const serverId = req.headers.serverid as string;
+  if (!serverId) {
+    return res.status(400).json({ message: "Server id is required" });
+  }
   const { chatId } = req.body;
 
   const user = req.user;
 
-  const prefixedChatId = makePrefixedId(chatId, serverid as string);
+  const prefixedChatId = makePrefixedId(chatId, serverId);
 
   try {
     const chat = await Chat.findOne({ id: prefixedChatId });
@@ -272,15 +288,16 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 };
 
 export const inviteParticipate = async (req: UserRequest, res: Response) => {
-  const { serverid } = req.headers;
+  const serverId = req.headers.serverid as string;
+  if (!serverId) {
+    return res.status(400).json({ message: "Server id is required" });
+  }
   const { chatId, users } = req.body;
 
   const user = req.user;
 
-  const prefixedChatId = makePrefixedId(chatId, serverid as string);
-  const prefixedUsers = users.map((id: string) =>
-    makePrefixedId(id, serverid as string)
-  );
+  const prefixedChatId = makePrefixedId(chatId, serverId);
+  const prefixedUsers = users.map((id: string) => makePrefixedId(id, serverId));
 
   try {
     const chat = await Chat.findOne({ id: prefixedChatId });

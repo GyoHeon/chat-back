@@ -10,8 +10,7 @@ import { IUser } from "../middleware/auth";
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import { UserRequest } from "../type/express";
-import { deletePrefixedId } from "../utils/deletePrefixedId";
-import { makePrefixedId } from "../utils/makePrefixedId";
+import { deletePrefixedId, makePrefixedId } from "../utils/prefix";
 
 dotenv.config({ path: ".env" });
 

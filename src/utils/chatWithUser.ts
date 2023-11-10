@@ -1,5 +1,5 @@
 import { User } from "../models/user.model";
-import { deletePrefixedId } from "../utils/deletePrefixedId";
+import { deletePrefixedId } from "../utils/prefix";
 
 export const chatWithUser = async (usersId: string[]) => {
   const users = await User.find({ id: { $in: usersId } });
