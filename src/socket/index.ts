@@ -44,6 +44,7 @@ serverSocket.on("connection", async (socket) => {
   const serverId = socket.handshake.headers.serverid as string;
 
   if (!serverId) {
+    console.log("serverId is not exist");
     return socket.disconnect();
   }
 
@@ -108,11 +109,13 @@ chatSocket.use((socket, next) => {
   const accessToken = rawAccessToken?.split(" ")[1];
 
   if (!accessToken) {
+    console.log("accessToken is not exist");
     return next(new Error("invalid token"));
   }
 
   const user = verifyToken(accessToken);
   if (!user) {
+    console.log("user is not exist");
     return next(new Error("invalid user"));
   }
 
@@ -127,12 +130,14 @@ chatSocket.on("connection", async (socket) => {
   const user = socket.data.user;
 
   if (!(chatId && serverId)) {
+    console.log("chatId or serverId is not exist");
     return socket.disconnect();
   }
 
   const prefixedChatId = makePrefixedId(chatId as string, serverId);
 
   if (!prefixedChatId) {
+    console.log("prefixedChatId is not exist");
     return socket.disconnect();
   }
   socket.join([prefixedChatId]);
@@ -140,11 +145,13 @@ chatSocket.on("connection", async (socket) => {
   const chat = await Chat.findOne({ id: prefixedChatId });
 
   if (!chat) {
+    console.log("chat is not exist");
     return socket.disconnect();
   }
 
   const isParticipated = chat.users.some((id) => id === user.id);
   if (!isParticipated) {
+    console.log("user is not participated");
     return socket.disconnect();
   }
 
@@ -167,6 +174,7 @@ chatSocket.on("connection", async (socket) => {
 
       socket.emit("messages-to-client", { messages: responseMessages });
     } catch (error) {
+      console.log(error);
       socket.disconnect();
     }
   });
@@ -192,6 +200,7 @@ chatSocket.on("connection", async (socket) => {
 
       chatSocket.to(prefixedChatId).emit("message-to-client", responseMessage);
     } catch (error) {
+      console.log(error);
       socket.disconnect();
     }
   });
