@@ -145,13 +145,14 @@ chatSocket.on("connection", async (socket) => {
   const chat = await Chat.findOne({ id: prefixedChatId });
 
   if (!chat) {
+    console.log({ prefixedChatId });
     console.log("chat is not exist");
     return socket.disconnect();
   }
 
   const isParticipated = chat.users.some((id) => id === user.id);
   if (!isParticipated) {
-    console.log("user is not participated");
+    console.log("user is not participated", chat.users);
     return socket.disconnect();
   }
 
