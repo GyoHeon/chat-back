@@ -220,7 +220,7 @@ export const postChat = async (
     };
 
     if (!chat.isPrivate) {
-      req.app.get("io").of("/chat").to(serverId).emit("new-chat", {
+      req.app.get("io").of("/server").to(serverId).emit("new-chat", {
         responseChat,
       });
     }

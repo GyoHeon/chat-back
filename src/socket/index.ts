@@ -150,12 +150,22 @@ chatSocket.on("connection", async (socket) => {
 
   socket.on("fetch-messages", async () => {
     try {
-      const chat = await Chat.findOne({ id: prefixedChatId });
-      const messages = chat.messages.reverse();
-      if (!messages) {
+      const chat = await Chat.findOne({ id: prefixedChatId }).sort({
+        createdAt: -1,
+      });
+      const rawMessages = chat.messages;
+      if (!rawMessages) {
         return socket.emit("messages-to-client", { messages: [] });
       }
-      socket.emit("messages-to-client", { messages });
+
+      const responseMessages = rawMessages.map((message) => ({
+        id: message.id,
+        text: message.text,
+        userId: deletePrefixedId(message.userId),
+        createdAt: message.createdAt,
+      }));
+
+      socket.emit("messages-to-client", { messages: responseMessages });
     } catch (error) {
       socket.disconnect();
     }
