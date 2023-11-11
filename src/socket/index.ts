@@ -196,9 +196,14 @@ chatSocket.on("connection", async (socket) => {
     }
   });
 
-  let users = [];
-  for (const [_, user] of chatSocket.sockets) {
-    users.push(user.data.user.id);
+  const users = [];
+
+  for (const socketId of chatSocket.adapter.rooms.get(serverId)) {
+    const user = chatSocket.sockets.get(socketId);
+    const isUnique = users.every((id) => id !== user.data.user.id);
+    if (isUnique) {
+      users.push(user.data.user.id);
+    }
   }
 
   const responseUser = deletePrefixedIds(users);
@@ -208,6 +213,16 @@ chatSocket.on("connection", async (socket) => {
     .emit("users-to-client", { users: responseUser });
 
   socket.on("users-chat", async () => {
+    const users = [];
+
+    for (const socketId of chatSocket.adapter.rooms.get(serverId)) {
+      const user = chatSocket.sockets.get(socketId);
+      const isUnique = users.every((id) => id !== user.data.user.id);
+      if (isUnique) {
+        users.push(user.data.user.id);
+      }
+    }
+
     const responseUser = deletePrefixedIds(users);
 
     chatSocket
@@ -216,7 +231,20 @@ chatSocket.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
-    users = users.filter((id) => id !== user.id);
+    if (!chatSocket.adapter.rooms.get(serverId)) {
+      return;
+    }
+
+    const users = [];
+
+    for (const socketId of chatSocket.adapter.rooms.get(serverId)) {
+      const user = chatSocket.sockets.get(socketId);
+      const isUnique = users.every((id) => id !== user.data.user.id);
+      if (isUnique) {
+        users.push(user.data.user.id);
+      }
+    }
+
     const responseUser = deletePrefixedIds(users);
 
     chatSocket
