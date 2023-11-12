@@ -50,6 +50,8 @@ app.patch("/user", authMiddleware, authController.patchUser);
 app.get("/user", authMiddleware, authController.getUser);
 app.get("/auth/me", authController.authMe);
 
+// Delete routes.
+
 // Chat routes.
 app.get("/users", authMiddleware, chatController.getUsers);
 app.get("/chat", authMiddleware, chatController.getChat);
