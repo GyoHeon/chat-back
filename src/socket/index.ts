@@ -145,8 +145,7 @@ chatSocket.on("connection", async (socket) => {
   const chat = await Chat.findOne({ id: prefixedChatId });
 
   if (!chat) {
-    console.log({ prefixedChatId });
-    console.log("chat is not exist");
+    console.log("chat is not exist", prefixedChatId);
     return socket.disconnect();
   }
 
@@ -195,8 +194,6 @@ chatSocket.on("connection", async (socket) => {
     });
 
     try {
-      const chat = await Chat.findOne({ id: prefixedChatId });
-
       await chat.updateOne({ $push: { messages: messageData } });
 
       chatSocket.to(prefixedChatId).emit("message-to-client", responseMessage);
