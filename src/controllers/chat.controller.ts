@@ -287,6 +287,12 @@ export const postChat = async (
       updatedAt: chat.updatedAt,
     };
 
+    allUsers.forEach((userId) => {
+      req.app.get("io").of("/server").to(userId).emit("invite", {
+        chat: responseChat,
+      });
+    });
+
     if (!chat.isPrivate) {
       req.app.get("io").of("/server").to(serverId).emit("new-chat", {
         responseChat,
@@ -330,14 +336,6 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
     const allUsers = [user.id, ...chat.users].map((id) => deletePrefixedId(id));
     const responseUsers = await chatWithUser([user.id, ...chat.users]);
-
-    req.app
-      .get("io")
-      .of("/server")
-      .to(user.id)
-      .emit("invite", {
-        chatId: deletePrefixedId(chat.id),
-      });
 
     req.app
       .get("io")
@@ -431,13 +429,9 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       updatedAt: chat.updatedAt,
     };
     prefixedUsers.forEach((invitedUserId) => {
-      req.app
-        .get("io")
-        .of("/server")
-        .to(invitedUserId)
-        .emit("invite", {
-          chatId: deletePrefixedId(chat.id),
-        });
+      req.app.get("io").of("/server").to(invitedUserId).emit("invite", {
+        chat: responseChat,
+      });
     });
 
     req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
