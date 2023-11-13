@@ -41,7 +41,7 @@ export const getUsers = async (
   }
 };
 
-export const getChat = async (
+export const getMyChats = async (
   req: UserRequest,
   res: Response,
   next: NextFunction
@@ -96,6 +96,71 @@ export const getChat = async (
       return res.status(404).json({ message: "Chat not found" });
     } else {
       return res.status(200).json({ chats: responseChats });
+    }
+  } catch (error) {
+    console.warn(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getOneChat = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const serverId = req.headers.serverid as string;
+  const chatId = req.params.chatId;
+  const prefixedChatId = makePrefixedId(chatId, serverId);
+  const user = req.user;
+  const userId = user.id;
+
+  try {
+    const chat = await Chat.findOne({ id: prefixedChatId });
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+    const isPrivate = chat.isPrivate;
+    if (isPrivate) {
+      const my = await User.findOne({ id: userId });
+      if (!my) {
+        return res
+          .status(404)
+          .json({ message: "Private chat require participated user" });
+      }
+      const isMyChat = my.chats.find((chatId) => chatId === prefixedChatId);
+      if (!isMyChat) {
+        return res
+          .status(404)
+          .json({ message: "Private chat require participated user" });
+      }
+    } else {
+    }
+
+    const { id, name, users, updatedAt, messages } = chat;
+    const responseUsers = await chatWithUser(users);
+    const latestMessage = messages[messages.length - 1];
+    const responseLatestMessage = latestMessage
+      ? {
+          id: latestMessage.id,
+          text: latestMessage.text,
+          createdAt: latestMessage.createdAt,
+          userId: deletePrefixedId(latestMessage.userId),
+        }
+      : null;
+
+    const responseChat = {
+      id: deletePrefixedId(id),
+      name,
+      users: responseUsers,
+      isPrivate,
+      updatedAt,
+      latestMessage: responseLatestMessage,
+    };
+
+    if (!responseChat) {
+      return res.status(404).json({ message: "Chat not found" });
+    } else {
+      return res.status(200).json({ chat: responseChat });
     }
   } catch (error) {
     console.warn(error);

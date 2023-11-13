@@ -54,7 +54,8 @@ app.get("/auth/me", authController.authMe);
 
 // Chat routes.
 app.get("/users", authMiddleware, chatController.getUsers);
-app.get("/chat", authMiddleware, chatController.getChat);
+app.get("/chat", authMiddleware, chatController.getMyChats);
+app.get("/chat/:chatId", authMiddleware, chatController.getOneChat);
 app.post("/chat", authMiddleware, chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
 app.patch(
