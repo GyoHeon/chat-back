@@ -57,7 +57,7 @@ app.get("/users", authMiddleware, chatController.getUsers);
 app.get("/chat", authMiddleware, chatController.getMyChats);
 app.post("/chat", authMiddleware, chatController.postChat);
 app.get("/chat/all", chatController.getAllChats);
-app.get("/chat/only/:chatId", authMiddleware, chatController.getOneChat);
+app.get("/chat/only", authMiddleware, chatController.getOneChat);
 app.patch(
   "/chat/participate",
   authMiddleware,

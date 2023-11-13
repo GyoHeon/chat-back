@@ -109,7 +109,10 @@ export const getOneChat = async (
   next: NextFunction
 ) => {
   const serverId = req.headers.serverid as string;
-  const chatId = req.params.chatId;
+  const chatId = req.query.chatId as string;
+  if (!chatId && typeof chatId !== "string") {
+    return res.status(400).json({ message: "Invalid chatId" });
+  }
   const prefixedChatId = makePrefixedId(chatId, serverId);
   const user = req.user;
   const userId = user.id;
