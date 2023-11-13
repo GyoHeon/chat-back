@@ -289,7 +289,7 @@ export const postChat = async (
 
     allUsers.forEach((userId) => {
       req.app.get("io").of("/server").to(userId).emit("invite", {
-        chat: responseChat,
+        responseChat,
       });
     });
 
@@ -430,7 +430,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
     };
     prefixedUsers.forEach((invitedUserId) => {
       req.app.get("io").of("/server").to(invitedUserId).emit("invite", {
-        chat: responseChat,
+        responseChat,
       });
     });
 
