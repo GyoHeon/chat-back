@@ -48,7 +48,7 @@ serverSocket.on("connection", async (socket) => {
     return socket.disconnect();
   }
 
-  await socket.join([serverId]);
+  await socket.join([serverId, socket.data.user.id]);
 
   const users = [];
 

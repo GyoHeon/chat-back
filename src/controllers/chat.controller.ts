@@ -247,7 +247,7 @@ export const postChat = async (
   }
 
   const id = randomUUID();
-  const prefixId = makePrefixedId(id, serverId as string);
+  const prefixChatId = makePrefixedId(id, serverId as string);
 
   const prefixedUsers = users.map((id: string) =>
     makePrefixedId(id, serverId as string)
@@ -257,7 +257,7 @@ export const postChat = async (
   const responseUsers = await chatWithUser(allUsers);
 
   const chat = new Chat({
-    id: prefixId,
+    id: prefixChatId,
     name,
     users: allUsers,
     isPrivate,
@@ -333,6 +333,14 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
     req.app
       .get("io")
+      .of("/server")
+      .to(user.id)
+      .emit("invite", {
+        chatId: deletePrefixedId(chat.id),
+      });
+
+    req.app
+      .get("io")
       .of("/chat")
       .to(prefixedChatId)
       .emit("join", {
@@ -365,7 +373,9 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
   const user = req.user;
 
   const prefixedChatId = makePrefixedId(chatId, serverId);
-  const prefixedUsers = users.map((id: string) => makePrefixedId(id, serverId));
+  const prefixedUsers: string[] = users.map((id: string) =>
+    makePrefixedId(id, serverId)
+  );
 
   try {
     const chat = await Chat.findOne({ id: prefixedChatId });
@@ -420,6 +430,15 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
       isPrivate: chat.isPrivate,
       updatedAt: chat.updatedAt,
     };
+    prefixedUsers.forEach((invitedUserId) => {
+      req.app
+        .get("io")
+        .of("/server")
+        .to(invitedUserId)
+        .emit("invite", {
+          chatId: deletePrefixedId(chat.id),
+        });
+    });
 
     req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
       users: allUsers,
