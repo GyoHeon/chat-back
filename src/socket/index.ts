@@ -140,7 +140,8 @@ chatSocket.on("connection", async (socket) => {
     console.log("prefixedChatId is not exist");
     return socket.disconnect();
   }
-  socket.join([prefixedChatId]);
+
+  await socket.join([prefixedChatId]);
 
   const chat = await Chat.findOne({ id: prefixedChatId });
 
@@ -157,9 +158,7 @@ chatSocket.on("connection", async (socket) => {
 
   socket.on("fetch-messages", async () => {
     try {
-      const chat = await Chat.findOne({ id: prefixedChatId }).sort({
-        createdAt: -1,
-      });
+      const chat = await Chat.findOne({ id: prefixedChatId });
       const rawMessages = chat.messages;
       if (!rawMessages) {
         return socket.emit("messages-to-client", { messages: [] });
