@@ -8,6 +8,7 @@ import { UserRequest } from "../type/express";
 import { chatWithUser } from "../utils/chatWithUser";
 import {
   deletePrefixedId,
+  deletePrefixedIds,
   extractPrefixId,
   makePrefixedId,
 } from "../utils/prefix";
@@ -338,7 +339,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
 
     await my.updateOne({ $push: { chats: chat.id } });
 
-    const allUsers = [user.id, ...chat.users].map((id) => deletePrefixedId(id));
+    const allUsers = deletePrefixedIds([user.id, ...chat.users]);
     const responseUsers = await chatWithUser([user.id, ...chat.users]);
 
     req.app
@@ -422,6 +423,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
     );
 
     const allUsers = [...chat.users, ...prefixedUsers];
+    const socketUsers = deletePrefixedIds(allUsers);
 
     const responseUsers = await chatWithUser(allUsers);
 
@@ -439,7 +441,7 @@ export const inviteParticipate = async (req: UserRequest, res: Response) => {
     });
 
     req.app.get("io").of("/chat").to(prefixedChatId).emit("join", {
-      users: allUsers,
+      users: socketUsers,
       joiners: users,
     });
 
