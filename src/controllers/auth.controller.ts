@@ -226,7 +226,7 @@ export const authMe = async (
 ) => {
   const { authorization } = req.headers;
   const token = authorization?.split(" ")[1];
-  if (!token) {
+  if (!token || token === "null" || token === "undefined") {
     return res.status(400).json({ auth: false });
   }
 

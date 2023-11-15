@@ -18,7 +18,7 @@ export const authMiddleware = (
 ) => {
   const { authorization } = req.headers;
   const token = authorization?.split(" ")[1];
-  if (!token) {
+  if (!token || token === "null" || token === "undefined") {
     return res.status(401).json({ message: "Invalid token" });
   }
 
