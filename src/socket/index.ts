@@ -205,19 +205,21 @@ chatSocket.on("connection", async (socket) => {
   try {
     const users = [];
 
-    if (chatSocket.adapter.rooms.size) {
-      for (const socketId of chatSocket.adapter.rooms.get(prefixedChatId)) {
-        const user = chatSocket.sockets.get(socketId);
-        const isUnique = users.every((id) => id !== user.data.user.id);
-        if (isUnique) {
-          users.push(user.data.user.id);
+    if (!chatSocket.adapter.rooms.size) {
+      if (chatSocket.adapter.rooms.has(prefixedChatId)) {
+        for (const socketId of chatSocket.adapter.rooms.get(prefixedChatId)) {
+          const user = chatSocket.sockets.get(socketId);
+          const isUnique = users.every((id) => id !== user.data.user.id);
+          if (isUnique) {
+            users.push(user.data.user.id);
+          }
         }
-      }
-      const responseUser = deletePrefixedIds(users);
+        const responseUser = deletePrefixedIds(users);
 
-      chatSocket
-        .to(prefixedChatId)
-        .emit("users-to-client", { users: responseUser });
+        chatSocket
+          .to(prefixedChatId)
+          .emit("users-to-client", { users: responseUser });
+      }
     }
   } catch (error) {
     console.log("first fetch", chatSocket.adapter.rooms);
@@ -227,11 +229,14 @@ chatSocket.on("connection", async (socket) => {
 
   socket.on("users-chat", async () => {
     try {
-      const users = [];
-
       if (!chatSocket.adapter.rooms.size) {
         return;
       }
+      if (!chatSocket.adapter.rooms.has(prefixedChatId)) {
+        return;
+      }
+
+      const users = [];
 
       for (const socketId of chatSocket.adapter.rooms.get(prefixedChatId)) {
         const user = chatSocket.sockets.get(socketId);
@@ -256,6 +261,9 @@ chatSocket.on("connection", async (socket) => {
   socket.on("disconnect", () => {
     try {
       if (!chatSocket.adapter.rooms.size) {
+        return;
+      }
+      if (!chatSocket.adapter.rooms.has(prefixedChatId)) {
         return;
       }
 
