@@ -276,6 +276,7 @@ chatSocket.on("connection", async (socket) => {
         .emit("users-to-client", { users: responseUser });
     } catch (error) {
       console.log("disconnect", chatSocket.adapter.rooms);
+      console.log(serverId);
 
       console.log(error);
     }
