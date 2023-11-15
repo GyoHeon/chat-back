@@ -53,6 +53,10 @@ export const getMyChats = async (
   try {
     const my = await User.findOne({ id });
 
+    if (!my) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const sameIdChats = my.chats.filter(
       (chatId) => extractPrefixId(chatId) === serverId
     );
