@@ -72,7 +72,8 @@ export const getMyChats = async (
 
     const responseChats = await Promise.all(
       chats.map(async (chat) => {
-        const { id, name, users, isPrivate, updatedAt, messages } = chat;
+        const { id, name, users, isPrivate, updatedAt, createdAt, messages } =
+          chat;
         const responseUsers = await chatWithUser(users);
         const latestMessage = messages[messages.length - 1];
         const responseLatestMessage = latestMessage
@@ -90,6 +91,7 @@ export const getMyChats = async (
           users: responseUsers,
           isPrivate,
           updatedAt,
+          createdAt,
           latestMessage: responseLatestMessage,
         };
 
@@ -195,7 +197,8 @@ export const getAllChats = async (
 
     const pickChats = chats
       .map(async (chat) => {
-        const { id, name, users, isPrivate, updatedAt, messages } = chat;
+        const { id, name, users, isPrivate, updatedAt, createdAt, messages } =
+          chat;
         const originalId = deletePrefixedId(id);
 
         const originalUsers = await chatWithUser(users);
@@ -216,6 +219,7 @@ export const getAllChats = async (
           users: originalUsers,
           isPrivate,
           updatedAt,
+          createdAt,
           latestMessage: responseLatestMessage,
         };
       })
