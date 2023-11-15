@@ -204,19 +204,20 @@ chatSocket.on("connection", async (socket) => {
 
   const users = [];
 
-  for (const socketId of chatSocket.adapter.rooms.get(prefixedChatId)) {
-    const user = chatSocket.sockets.get(socketId);
-    const isUnique = users.every((id) => id !== user.data.user.id);
-    if (isUnique) {
-      users.push(user.data.user.id);
+  if (chatSocket.adapter.rooms.size) {
+    for (const socketId of chatSocket.adapter.rooms.get(prefixedChatId)) {
+      const user = chatSocket.sockets.get(socketId);
+      const isUnique = users.every((id) => id !== user.data.user.id);
+      if (isUnique) {
+        users.push(user.data.user.id);
+      }
     }
+    const responseUser = deletePrefixedIds(users);
+
+    chatSocket
+      .to(prefixedChatId)
+      .emit("users-to-client", { users: responseUser });
   }
-
-  const responseUser = deletePrefixedIds(users);
-
-  chatSocket
-    .to(prefixedChatId)
-    .emit("users-to-client", { users: responseUser });
 
   socket.on("users-chat", async () => {
     const users = [];
