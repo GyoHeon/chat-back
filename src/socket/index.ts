@@ -276,9 +276,10 @@ chatSocket.on("connection", async (socket) => {
         .emit("users-to-client", { users: responseUser });
     } catch (error) {
       console.log("disconnect", chatSocket.adapter.rooms);
-      console.log(serverId);
+      console.log(prefixedChatId);
 
       console.log(error);
+      console.log(chatSocket.adapter.rooms instanceof Map);
     }
   });
 });
