@@ -352,7 +352,7 @@ export const updateParticipate = async (req: UserRequest, res: Response) => {
       .to(prefixedChatId)
       .emit("join", {
         users: allUsers,
-        joiners: [user],
+        joiners: [deletePrefixedId(user.id)],
       });
 
     const responseChat = {
