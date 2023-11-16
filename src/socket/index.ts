@@ -159,6 +159,14 @@ chatSocket.on("connection", async (socket) => {
   socket.on("fetch-messages", async () => {
     try {
       const chat = await Chat.findOne({ id: prefixedChatId });
+      if (!chat) {
+        console.log("fetch-messages fail with chatId :", prefixedChatId);
+        socket.emit("error", {
+          error: "fetch-messages fail with chatId :",
+          prefixedChatId,
+        });
+        return;
+      }
       const rawMessages = chat.messages;
       if (!rawMessages) {
         return socket.emit("messages-to-client", { messages: [] });
